@@ -182,8 +182,8 @@ user-invocable: true
 
 | 想改 | 位置 |
 |---|---|
-| 版权署名 | `LICENSE` 第一行 |
-| 仓库地址（README 安装提示词里的 `YOUR-NAME`） | `README.md` 全文替换 |
+| 版权署名 | `LICENSE` **和** `.dsh/LICENSE` 第一行（两处必须一致，`repo_lint.py` 会校验） |
+| 仓库地址（安装提示词里的 URL） | `README.md`、`docs/INSTALL.md`、`docs/MANUAL.md`、`CHANGELOG.md` 全文替换 |
 | 概念地图文件名 | `.dsh/wiki.config.json` 的 `canvas` |
 | 论文页模板要求（8 项判定的具体条文） | `.dsh/scripts/check_paper_template.py` 顶部的判定说明 + 正则 |
 | 日志允许的操作类型 | `AGENTS.md` 的「log.md」段 + 三个技能里的写入格式 |

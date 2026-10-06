@@ -31,7 +31,7 @@
 ## 方式 B：手工装
 
 ```bash
-git clone https://github.com/YOUR-NAME/scholar-wiki-kit /tmp/scholar-wiki-kit
+git clone https://github.com/lkhfrgc/scholar-wiki-kit /tmp/scholar-wiki-kit
 cd /path/to/your-vault
 
 # 只复制这三样；.dsh/ 是目录，复制时要做合并而不是覆盖
@@ -45,7 +45,7 @@ python .dsh/scripts/selfcheck.py
 Windows PowerShell（`Copy-Item` 不带 `-Force` 即不覆盖）：
 
 ```powershell
-git clone https://github.com/YOUR-NAME/scholar-wiki-kit $env:TEMP\scholar-wiki-kit
+git clone https://github.com/lkhfrgc/scholar-wiki-kit $env:TEMP\scholar-wiki-kit
 Copy-Item $env:TEMP\scholar-wiki-kit\.dsh, $env:TEMP\scholar-wiki-kit\templates . -Recurse
 Copy-Item $env:TEMP\scholar-wiki-kit\AGENTS.md .
 python .dsh/scripts/setup_wiki.py

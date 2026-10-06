@@ -136,7 +136,7 @@
 ### 手工安装
 
 ```bash
-git clone https://github.com/YOUR-NAME/scholar-wiki-kit /tmp/scholar-wiki-kit
+git clone https://github.com/lkhfrgc/scholar-wiki-kit /tmp/scholar-wiki-kit
 cd /path/to/your-vault
 
 # 只复制这三样

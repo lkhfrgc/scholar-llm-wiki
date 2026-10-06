@@ -63,4 +63,4 @@ PDF 公式流水线、零硬编码），见 README 的[「方法论出处」](RE
 - **假死链必须屏蔽**：文档、模板、注释里到处是「链接的写法」而不是「链接本身」。
   不屏蔽这些，一次检查就报几十条假问题，真问题反而被淹没。
 
-[1.0.0]: https://github.com/YOUR-NAME/scholar-wiki-kit/releases/tag/v1.0.0
+[1.0.0]: https://github.com/lkhfrgc/scholar-wiki-kit/releases/tag/v1.0.0

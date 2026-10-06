@@ -58,29 +58,32 @@ python .dsh/scripts/gen_canvas.py --check      # 画布同步
 - [ ] 遵守 `AGENTS.md` 契约（五类页面、frontmatter、`## 关联连接`、tag 词表）
 - [ ] 在 `AGENTS.md` 的「Skills 调度指引」里登记
 
-## 首次发布到 GitHub
+## 发布与推送
 
-仓库已经带好 `.gitignore`、`LICENSE` 与 CI 配置，直接推即可：
+仓库已初始化完毕（`.gitignore`、`LICENSE`、CI 配置、占位符全部就位），
+`origin` 指向 <https://github.com/lkhfrgc/scholar-wiki-kit>。日常推送就是普通流程：
 
 ```bash
-cd scholar-wiki-kit
-git init -b main
 git add -A
-git commit -m "feat: ScholarWiki Kit v1.0.0"
-git remote add origin https://github.com/<你的用户名>/scholar-wiki-kit.git
-git push -u origin main
+git commit -m "…"
+git push
 ```
 
-推之前把仓库里三处占位符换成真值：
+> **首次推送的注意事项**：GitHub 建仓时若勾选了 license 模板，远端会有一个
+> 自动生成的 `Initial commit`（只含 `LICENSE`），它与本地历史**没有共同祖先**，
+> 普通 `git push` 会被拒绝。用 `git push -u origin main --force` 覆盖即可——
+> 那个提交里没有你的任何内容。
+> 若远端已有你不想丢的东西，先 `git fetch origin main` 看一眼再决定。
 
-| 位置 | 替换成 | 为什么 |
-|---|---|---|
-| `README.md` 里的 `YOUR-NAME`（共 3 处：一句话安装、短版、手工装） | 你的 GitHub 用户名 | 不换的话安装提示词是废的 |
-| `CHANGELOG.md` 底部的 release 链接 | 你的仓库地址 | 同上 |
-| `LICENSE` 与 `.dsh/LICENSE` 第一行的署名（**两处都要改，且必须改成一模一样**） | 你的名字或 GitHub handle | MIT 要求署名到人/组织；`repo_lint.py` 会校验两份副本一致 |
+`repo_lint.py` 会强制 `LICENSE` 与 `.dsh/LICENSE` 逐字节一致，
+CI 也会在 Linux 上跑一遍「泄露扫描 → 词表自洽 → 模拟安装 → 全量体检」。
 
-> 署名建议写成 `Copyright (c) 2026 <你的 GitHub handle>`，比 `… contributors` 更明确——
-> 后者在需要主张权利时无法指向具体主体。
+维护者自查清单（改完跑一遍）：
+
+```bash
+python .dsh/scripts/repo_lint.py
+python .dsh/scripts/tag_vocab.py --check
+```
 
 `.dsh/tmp/`、`.dsh/venv/`、`__pycache__/` 已被忽略，不会进版本库。
 

@@ -74,12 +74,12 @@
 
 把下面这一整句发给你的 DSH，它会自己完成全部安装：
 
-> **请安装 ScholarWiki Kit：把 `https://github.com/YOUR-NAME/scholar-wiki-kit` 克隆到临时目录（没有 git 就下载 zip 解压），将仓库里的 `.dsh/`、`AGENTS.md`、`templates/` 复制到当前工作区（`.dsh/` 按目录合并，任何已存在的同名文件都不要覆盖，冲突项另存为 `<原文件名>.kit-new`），然后依次运行 `python .dsh/scripts/setup_wiki.py` 与 `python .dsh/scripts/selfcheck.py`，把体检报告原样贴给我，并提醒我把待摄入资料放进 `raw/research/`；全程不要修改 `raw/` 下的任何文件。**
+> **请安装 ScholarWiki Kit：把 `https://github.com/lkhfrgc/scholar-wiki-kit` 克隆到临时目录（没有 git 就下载 zip 解压），将仓库里的 `.dsh/`、`AGENTS.md`、`templates/` 复制到当前工作区（`.dsh/` 按目录合并，任何已存在的同名文件都不要覆盖，冲突项另存为 `<原文件名>.kit-new`），然后依次运行 `python .dsh/scripts/setup_wiki.py` 与 `python .dsh/scripts/selfcheck.py`，把体检报告原样贴给我，并提醒我把待摄入资料放进 `raw/research/`；全程不要修改 `raw/` 下的任何文件。**
 
 <details>
 <summary>更短的版本（先试 clone，失败再手工）</summary>
 
-> **克隆 `https://github.com/YOUR-NAME/scholar-wiki-kit`，把里面的 `.dsh/` 和 `AGENTS.md` 复制到当前工作区（不要覆盖已有文件），跑 `python .dsh/scripts/setup_wiki.py`，然后把 `selfcheck.py` 的结果给我看。**
+> **克隆 `https://github.com/lkhfrgc/scholar-wiki-kit`，把里面的 `.dsh/` 和 `AGENTS.md` 复制到当前工作区（不要覆盖已有文件），跑 `python .dsh/scripts/setup_wiki.py`，然后把 `selfcheck.py` 的结果给我看。**
 
 </details>
 
@@ -87,7 +87,7 @@
 <summary>不用 agent，手工装（30 秒）</summary>
 
 ```bash
-git clone https://github.com/YOUR-NAME/scholar-wiki-kit /tmp/scholar-wiki-kit
+git clone https://github.com/lkhfrgc/scholar-wiki-kit /tmp/scholar-wiki-kit
 cp -r /tmp/scholar-wiki-kit/.dsh /tmp/scholar-wiki-kit/AGENTS.md /tmp/scholar-wiki-kit/templates .   # 合并式复制
 python .dsh/scripts/setup_wiki.py
 python .dsh/scripts/selfcheck.py
@@ -96,7 +96,7 @@ python .dsh/scripts/selfcheck.py
 Windows PowerShell：
 
 ```powershell
-git clone https://github.com/YOUR-NAME/scholar-wiki-kit $env:TEMP\scholar-wiki-kit
+git clone https://github.com/lkhfrgc/scholar-wiki-kit $env:TEMP\scholar-wiki-kit
 Copy-Item $env:TEMP\scholar-wiki-kit\.dsh, $env:TEMP\scholar-wiki-kit\AGENTS.md, $env:TEMP\scholar-wiki-kit\templates . -Recurse
 python .dsh/scripts/setup_wiki.py
 python .dsh/scripts/selfcheck.py
