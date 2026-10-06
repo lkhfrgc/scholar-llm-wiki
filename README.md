@@ -1,6 +1,8 @@
 # ScholarWiki Kit
 
-> **面向科研与文献整理**：把论文、书籍、课件、网页长文**编译**成结构化、高度互链的 Obsidian 知识库 —— 一套给 AI agent 用的工作流工具包。
+> **文献进，知识出。** 面向**科研与文献整理**的知识库工具包：AI agent 把论文、书籍、课件、网页长文**编译**成结构化、高度互链的 Obsidian 知识库。
+>
+> ***Sources in, knowledge out.** A knowledge base toolkit for research and literature review. AI agents compile papers, books, course notes and articles into a structured, densely interlinked Obsidian wiki — not a one-off summary, but a persistent artifact that compounds with every source you add. Built on Andrej Karpathy's [llm-wiki.md](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) pattern, plus a controlled tag vocabulary, concept hierarchy with generated Canvas maps, an arXiv→LaTeX formula pipeline, and audits that speak through exit codes. Zero hardcoding. Docs are in Chinese.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.9-blue.svg)
