@@ -15,6 +15,7 @@ r"""repo_lint —— 提交前的「泄露与格式」自检。
   7. Python 可编译
   8. Markdown 本地链接   相对链接必须指向真实存在的文件
      （外链、锚点、邮件地址跳过；围栏代码块里的示例链接不算）
+  9. 许可证副本    `.dsh/LICENSE` 与根 `LICENSE` 必须逐字节一致
 
 命中行若带 `repo-lint:ignore` 标记则豁免（文档需要展示"路径的形状"时用）。
 
@@ -196,6 +197,16 @@ def main(argv: list[str] | None = None) -> int:
             except Exception as exc:  # PyCompileError / OSError / ValueError(null byte) …
                 findings.append({"file": rel, "line": 0, "kind": "python", "label": "Python 编译失败",
                                  "match": str(exc).splitlines()[0][:160]})
+
+    # 许可证副本同步：`.dsh/LICENSE` 会随安装一起进到用户的知识库里，
+    # 它必须与仓库根的 LICENSE 逐字节一致，否则就是"发出去的许可证和声明的不一样"。
+    lic_root = root / "LICENSE"
+    lic_copy = root / ".dsh" / "LICENSE"
+    if lic_root.is_file() and lic_copy.is_file():
+        if lic_root.read_bytes() != lic_copy.read_bytes():
+            findings.append({"file": ".dsh/LICENSE", "line": 0, "kind": "license-drift",
+                             "label": "许可证副本与根 LICENSE 不一致",
+                             "match": "两者必须逐字节相同"})
 
     # 合成报告
     by_kind: dict[str, int] = {}

@@ -71,13 +71,16 @@ git remote add origin https://github.com/<你的用户名>/scholar-wiki-kit.git
 git push -u origin main
 ```
 
-推之前把仓库里两处占位符换成真值（否则 README 的安装提示词是废的）：
+推之前把仓库里三处占位符换成真值：
 
-| 位置 | 替换成 |
-|---|---|
-| `README.md` 里的 `YOUR-NAME`（共 3 处：一句话安装、短版、手工装） | 你的 GitHub 用户名 |
-| `CHANGELOG.md` 底部的 release 链接 | 你的仓库地址 |
-| `LICENSE` 第一行的署名（可选） | 你的名字或组织 |
+| 位置 | 替换成 | 为什么 |
+|---|---|---|
+| `README.md` 里的 `YOUR-NAME`（共 3 处：一句话安装、短版、手工装） | 你的 GitHub 用户名 | 不换的话安装提示词是废的 |
+| `CHANGELOG.md` 底部的 release 链接 | 你的仓库地址 | 同上 |
+| `LICENSE` 与 `.dsh/LICENSE` 第一行的署名（**两处都要改，且必须改成一模一样**） | 你的名字或 GitHub handle | MIT 要求署名到人/组织；`repo_lint.py` 会校验两份副本一致 |
+
+> 署名建议写成 `Copyright (c) 2026 <你的 GitHub handle>`，比 `… contributors` 更明确——
+> 后者在需要主张权利时无法指向具体主体。
 
 `.dsh/tmp/`、`.dsh/venv/`、`__pycache__/` 已被忽略，不会进版本库。
 
