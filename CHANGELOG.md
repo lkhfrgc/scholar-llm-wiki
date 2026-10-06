@@ -38,6 +38,16 @@
   JSON 与 Python 可解析 / **Markdown 本地链接失效**（围栏代码块、行内代码、
   HTML 与 Obsidian 注释里的示例链接会被屏蔽，避免假死链淹没真问题）。
 
+### 方法论出处
+
+基础方法论来自 **Andrej Karpathy 的 [`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)**：
+让 LLM 增量维护一个持久的、可复利增长的 wiki，而不是每次提问都从原始文档重新检索。
+
+具体对应关系（三层架构 → `raw/`/`wiki/`/`AGENTS.md`；Ingest/Query/Lint → 三个同名技能；
+`index.md`/`log.md` 的语义；「Obsidian 是 IDE，LLM 是程序员，wiki 是代码库」）
+以及本仓库在其之上补的工程约束（tag 受控词表、概念分层与 Canvas、以退出码说话的校验、
+PDF 公式流水线、零硬编码），见 README 的[「方法论出处」](README.md#方法论出处)一节。
+
 ### 设计取舍
 
 - **词表与引擎分离**：词表放 JSON 才能被审计、被 diff、被迁移。

@@ -1,7 +1,7 @@
 # 语言设定与核心角色 (Global Rules)
 
 - **语言指令**：无论输入何种语言，你需要使用**简体中文**进行回复和知识库的编写，对于部分专有概念、名词可以使用英文辅助解释。（可用 `.dsh/wiki.config.json` 的 `language` 字段改为其它语言，改了以后本文件的相关表述需同步调整。）
-- **角色定义**：你正在维护一个 **LLM Wiki**（依据 [Karpathy 的规范](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)），你的任务是将碎片化的信息编译成结构化、高度相互链接的 Obsidian 知识库。
+- **角色定义**：你正在维护一个 **LLM Wiki**（方法论来自 Andrej Karpathy 的 [`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)：让 LLM 增量维护一个持久的、可复利增长的 wiki，而不是每次提问都从原始文档重新检索），你的任务是将碎片化的信息编译成结构化、高度相互链接的 Obsidian 知识库。
 
 > ⚠️ **目录名可变，配置是唯一权威**：本文件写的 `wiki/`、`raw/`、`index.md` 等都是**默认值**，全部由 `.dsh/wiki.config.json` 定义。任何时刻不确定路径，先跑：
 >
