@@ -1,0 +1,61 @@
+{
+  "$comment": "LLM Wiki Kit 唯一配置源。所有脚本与技能都从这里读路径，仓库内不允许出现绝对路径。改完保存即生效，无需其它同步动作。",
+  "version": 1,
+
+  "wiki_name": "LLM Wiki",
+  "language": "zh-CN",
+
+  "$comment_vault_prefix": "\"auto\" = 从工作区逐级向上找 .obsidian/ 自动推断库根前缀；也可显式写死，如 \"notes\" 或 \"\"（工作区本身就是库根）。",
+  "vault_prefix": "auto",
+
+  "$comment_dirs": "目录名可按自己的习惯改（支持中文目录名）。inbox 是 ingest 的唯一入口，archive 是摄入后的归档目标。",
+  "dirs": {
+    "wiki": "wiki",
+    "raw": "raw",
+    "inbox": "raw/research",
+    "tmp": ".dsh/tmp",
+    "archive": {
+      "papers": "raw/papers",
+      "book": "raw/book",
+      "courses": "raw/courses",
+      "clips": "raw/clips",
+      "articles": "raw/articles",
+      "assets": "raw/assets"
+    },
+    "my_research": "我的研究",
+    "weekly": "周报"
+  },
+
+  "$comment_files": "根目录下的四个受维护文件。vocab 是 tag 受控词表的数据文件（词表与引擎分离）。",
+  "files": {
+    "index": "index.md",
+    "log": "log.md",
+    "tags_doc": "TAGS.md",
+    "vocab": ".dsh/tag-vocab.json"
+  },
+
+  "$comment_wiki_types": "wiki 子目录 → frontmatter 的 type 值。lint 的索引一致性检查与 ingest 的分类都依赖这张表；改目录名时同步改这里。",
+  "wiki_types": {
+    "papers": "paper",
+    "concepts": "concept",
+    "connections": "connection",
+    "questions": "question",
+    "syntheses": "synthesis"
+  },
+
+  "$comment_canvas": "概念地图画布的文件名。overview 是总图，family_prefix + <母页名> + .canvas 是单族图。",
+  "canvas": {
+    "overview": "wiki/概念全景图.canvas",
+    "family_prefix": "wiki/概念地图-",
+    "title": "概念全景图"
+  },
+
+  "$comment_domains": "周报/速报的领域分区。留空数组则跳过领域速报相关功能。示例：[\"CV\", \"NLP\", \"LLM\", \"RL\", \"机器人\"]",
+  "domains": [],
+
+  "$comment_python": "venv 只在需要 PyMuPDF（PDF 正文抽取）时才用；其余脚本用 harness 自带 Python 即可。",
+  "python": {
+    "venv": ".dsh/venv",
+    "requirements": ".dsh/requirements.txt"
+  }
+}

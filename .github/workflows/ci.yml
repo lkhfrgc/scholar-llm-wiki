@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: check (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 是声明的最低版本；3.12 是当前主流
+        python-version: ["3.9", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # 1) 工具包自身不允许出现绝对路径 / 用户名 / 凭据 / BOM
+      - name: repo_lint — 泄露与格式自检
+        run: python .dsh/scripts/repo_lint.py
+
+      # 2) 词表数据与引擎必须自洽
+      - name: tag_vocab --check — 词表自洽性
+        run: python .dsh/scripts/tag_vocab.py --check
+
+      # 3) 在干净的临时目录里真的装一遍，验证「开箱即用」
+      - name: 模拟安装（干净目录）
+        run: |
+          set -euo pipefail
+          VAULT="$RUNNER_TEMP/vault"
+          mkdir -p "$VAULT"
+          cp -r "$GITHUB_WORKSPACE/.dsh" "$GITHUB_WORKSPACE/AGENTS.md" "$GITHUB_WORKSPACE/templates" "$VAULT/"
+          cd "$VAULT"
+          python .dsh/scripts/wiki_env.py --paths
+          python .dsh/scripts/setup_wiki.py
+
+      - name: 安装后体检
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/vault"
+          python .dsh/scripts/selfcheck.py
+          python .dsh/scripts/gen_canvas.py --check
+          python .dsh/scripts/tag_audit.py
+          python .dsh/scripts/check_paper_template.py
+
+      # 4) 幂等性：再跑一次 setup 不应报错，也不应覆盖已生成的内容
+      - name: 幂等性
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/vault"
+          python .dsh/scripts/setup_wiki.py --quiet
+          python .dsh/scripts/selfcheck.py --quiet

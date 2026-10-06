@@ -1,0 +1,14 @@
+# 跨平台工具：仓库内一律 LF，避免 Windows 的 autocrlf 把行尾改掉。
+# 这样 CI（Linux）与本地（Windows/macOS）拿到的字节完全一致，
+# 也保证 tag_apply.py 的「字节级最小改动」不会因为行尾差异误报。
+* text=auto eol=lf
+
+# 二进制/生成物，不做行尾转换
+*.png binary
+*.jpg binary
+*.pdf binary
+*.canvas text eol=lf
+
+# Windows 专用脚本保留 CRLF（当前仓库没有，留作约定）
+*.bat text eol=crlf
+*.ps1 text eol=crlf

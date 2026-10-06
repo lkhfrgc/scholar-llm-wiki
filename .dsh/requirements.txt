@@ -1,0 +1,4 @@
+# extract_pdf.py 需要（其余脚本仅用标准库）
+PyMuPDF>=1.24
+# crop_equations.py 需要（多数 Python 发行版已内置 Pillow，缺失时再装）
+Pillow>=10.0

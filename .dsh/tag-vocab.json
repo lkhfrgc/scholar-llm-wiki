@@ -1,0 +1,801 @@
+{
+  "$comment": "LLM Wiki Kit 的 tag 受控词表数据（词表与引擎分离）。facets 的键顺序 = frontmatter 中 tag 的排序顺序，固定为 domain/task/modality/method/challenge/data/meta，不要改动键顺序。改完运行 `python .dsh/scripts/tag_vocab.py --check` 校验，再 `--emit-doc` 刷新 TAGS.md。",
+  "version": 1,
+
+  "$comment_facets": "分面的 desc 会写进 TAGS.md 的表格；hint 是「判断问题」，用来判断一个词该归到哪个分面。",
+  "facets": {
+    "domain": {
+      "desc": "领域与平台：研究面向的应用场景、学科领域与数据来源平台",
+      "hint": "这一页服务于哪个应用/平台？"
+    },
+    "task": {
+      "desc": "任务：这一页要解决/讨论的预测目标或输出形态",
+      "hint": "这一页的输出是什么？"
+    },
+    "modality": {
+      "desc": "模态：输入数据、传感器或信号的形态",
+      "hint": "输入数据是什么形态/传感器？"
+    },
+    "method": {
+      "desc": "方法：架构、机制、学习范式与求解手段",
+      "hint": "用了什么架构或机制？"
+    },
+    "challenge": {
+      "desc": "问题：使任务变难的统计、物理或工程障碍",
+      "hint": "是什么让任务变难？"
+    },
+    "data": {
+      "desc": "数据与资源：数据集、基准、合成与仿真、数据治理",
+      "hint": "涉及哪个数据集/基准/仿真？"
+    },
+    "meta": {
+      "desc": "元信息：综述、路线图、实验分析与设计空间",
+      "hint": "这是综述、路线图还是实验分析？"
+    }
+  },
+
+  "$comment_role_tags": "角色 tag 不带分面前缀，且必须是 tags 的第一项；数量与取值固定，勿改。",
+  "role_tags": ["母概念", "子概念"],
+
+  "$comment_canonical": "规范 tag 全集：分面 → {叶节点: 中文释义}。叶节点一律小写 kebab-case，且必须能在 map 里找到至少一个来源，否则 --check 判为死词条。",
+  "canonical": {
+    "domain": {
+      "llm": "大语言模型",
+      "nlp": "自然语言处理",
+      "cv": "计算机视觉",
+      "rl": "强化学习（作为研究领域）",
+      "robotics": "机器人与具身智能",
+      "speech": "语音技术与口语处理",
+      "multimodal": "多模态研究",
+      "graph": "图与网络数据研究",
+      "systems": "机器学习系统与工程（训练、推理、部署）",
+      "security": "安全与对抗（AI 安全、攻防）",
+      "medical-imaging": "医学影像与临床数据分析",
+      "autonomous-driving": "自动驾驶与地面移动平台",
+      "remote-sensing": "对地观测与地理空间数据（卫星/航空）",
+      "scientific-computing": "科学计算与 AI for Science",
+      "hci": "人机交互与用户研究",
+      "web": "Web、搜索与推荐",
+      "theory": "理论与算法基础（学习理论、复杂度）"
+    },
+    "task": {
+      "classification": "分类",
+      "detection": "目标检测",
+      "segmentation": "分割（语义/实例）",
+      "generation": "生成（文本/图像/内容）",
+      "translation": "翻译与跨语言转换",
+      "summarization": "摘要与压缩",
+      "question-answering": "问答",
+      "retrieval": "检索与召回",
+      "ranking": "排序与推荐",
+      "regression": "回归预测",
+      "forecasting": "时序/数值预测",
+      "reasoning": "推理与问题求解",
+      "planning": "规划与决策",
+      "control": "控制与执行",
+      "navigation": "导航、定位与建图",
+      "tracking": "目标跟踪",
+      "pose-estimation": "位姿/关键点估计",
+      "clustering": "聚类与分组",
+      "representation-learning": "表征学习（学习可迁移的特征空间）",
+      "code-generation": "代码生成与程序合成",
+      "evaluation": "评测与基准分析",
+      "alignment": "对齐（价值/偏好对齐）",
+      "tool-use": "工具使用与智能体调用",
+      "optimization": "优化求解（组合/连续优化任务）"
+    },
+    "modality": {
+      "text": "文本/自然语言",
+      "image": "静态图像",
+      "video": "视频/时序影像",
+      "audio": "音频（非语音）",
+      "speech": "语音信号",
+      "code": "源代码/程序文本",
+      "tabular": "表格/结构化数据",
+      "graph": "图与网络结构数据",
+      "time-series": "时间序列/传感器信号",
+      "point-cloud": "点云/三维扫描",
+      "3d": "三维表示（体素、网格、深度）",
+      "multimodal": "多模态/跨模态输入"
+    },
+    "method": {
+      "transformer": "Transformer 架构（含 ViT、编码器-解码器）",
+      "cnn": "卷积网络（含 ResNet 等骨干）",
+      "rnn": "循环网络（RNN/LSTM/GRU）",
+      "gnn": "图神经网络与消息传递",
+      "ssm": "状态空间模型（含选择性扫描类架构）",
+      "attention": "注意力机制（自注意力、交叉注意力）",
+      "diffusion": "扩散模型与基于分数的生成",
+      "gan": "生成对抗网络与对抗训练",
+      "vae": "变分自编码器与自编码器",
+      "mixture-of-experts": "混合专家与稀疏激活",
+      "contrastive": "对比学习与度量学习",
+      "self-supervised": "自监督学习（掩码建模、预文本任务）",
+      "reinforcement-learning": "强化学习与策略优化",
+      "distillation": "知识蒸馏与教师-学生框架",
+      "quantization": "量化与低精度推理",
+      "pruning": "剪枝与稀疏化",
+      "parameter-efficient": "参数高效微调（LoRA、Adapter、PEFT）",
+      "prompt-learning": "提示学习与软提示",
+      "fine-tuning": "微调与指令微调",
+      "pretraining": "预训练与预训练-微调范式",
+      "retrieval-augmented": "检索增强（RAG）",
+      "in-context-learning": "上下文学习与少样本提示",
+      "multi-task": "多任务学习与辅助任务",
+      "curriculum": "课程学习",
+      "meta-learning": "元学习与学会学习",
+      "federated": "联邦学习与去中心化训练",
+      "ensemble": "集成与模型融合",
+      "loss-design": "损失函数与正则化设计",
+      "feature-fusion": "特征融合与多源信息整合",
+      "bayesian": "贝叶斯方法与概率建模",
+      "optimization": "优化算法（梯度下降、学习率调度）",
+      "interpretability": "可解释性与归因分析",
+      "deep-learning": "深度学习（泛指神经网络方法）",
+      "foundation-model": "基础模型/预训练大模型（模型专名统一归这里）"
+    },
+    "challenge": {
+      "efficiency": "计算与存储效率（轻量化、显存）",
+      "scalability": "可扩展性（规模、数据与模型增长）",
+      "robustness": "鲁棒性与对抗干扰",
+      "generalization": "泛化与分布外表现",
+      "hallucination": "幻觉与事实性错误",
+      "long-context": "长上下文与长文档处理",
+      "data-scarcity": "数据稀缺与低资源",
+      "distribution-shift": "分布偏移与域差异",
+      "label-noise": "标签噪声与弱监督",
+      "class-imbalance": "类别不平衡与长尾",
+      "fairness": "公平性与偏见",
+      "privacy": "隐私与数据保护",
+      "reproducibility": "可复现性",
+      "catastrophic-forgetting": "灾难性遗忘与持续学习",
+      "latency": "延迟与实时性约束",
+      "sparsity": "稀疏性与信息冗余",
+      "alignment-gap": "对齐缺口（目标与人类意图不一致）"
+    },
+    "data": {
+      "dataset": "数据集（含公开数据集专名）",
+      "benchmark": "评测基准与协议",
+      "synthetic": "合成数据与数据增强",
+      "simulation": "仿真环境与模拟器",
+      "annotation": "标注与人工标注流程",
+      "curation": "数据治理（清洗、去重、覆盖度）",
+      "leaderboard": "排行榜与竞赛",
+      "open-source": "开源模型/数据/权重"
+    },
+    "meta": {
+      "survey": "综述与分类体系",
+      "roadmap": "研究路线图与空白",
+      "analysis": "实验设计与诊断分析（消融、对比）",
+      "design-space": "设计空间与方案权衡",
+      "reproduction": "复现与再实现",
+      "position-paper": "观点/立场文章",
+      "tutorial": "教程与入门指南",
+      "terminology": "术语表与概念界定"
+    }
+  },
+
+  "$comment_map": "历史/别名 tag → 规范 tag 列表；值为 [] 表示该词无检索价值、直接删除。同一个来源词可以映射到多个规范 tag（复合词必须拆分，例如 image-classification → modality/image + task/classification）。若要新增 tag，请同时在本表登记来源词，否则 --check 会报「死词条」。",
+  "map": {
+    "母概念": ["母概念"],
+    "子概念": ["子概念"],
+
+    "llm": ["domain/llm"],
+    "LLM": ["domain/llm"],
+    "language-model": ["domain/llm"],
+    "large-language-model": ["domain/llm"],
+    "large-language-models": ["domain/llm"],
+
+    "nlp": ["domain/nlp"],
+    "NLP": ["domain/nlp"],
+    "natural-language-processing": ["domain/nlp"],
+    "text-mining": ["domain/nlp"],
+
+    "cv": ["domain/cv"],
+    "CV": ["domain/cv"],
+    "computer-vision": ["domain/cv"],
+    "vision": ["domain/cv"],
+
+    "rl": ["domain/rl"],
+    "RL": ["domain/rl"],
+
+    "robotics": ["domain/robotics"],
+    "robot-learning": ["domain/robotics"],
+    "embodied-ai": ["domain/robotics"],
+
+    "asr": ["domain/speech"],
+    "speech-recognition": ["domain/speech"],
+    "speech-processing": ["domain/speech"],
+
+    "multimodal-ai": ["domain/multimodal"],
+    "multimodal-research": ["domain/multimodal"],
+
+    "graph-learning": ["domain/graph", "method/gnn"],
+    "graph-mining": ["domain/graph"],
+    "network-science": ["domain/graph"],
+
+    "ml-systems": ["domain/systems"],
+    "mlops": ["domain/systems"],
+    "distributed-training": ["domain/systems", "challenge/scalability"],
+    "model-serving": ["domain/systems", "challenge/latency"],
+    "gpu-optimization": ["domain/systems", "challenge/efficiency"],
+
+    "ai-security": ["domain/security"],
+    "backdoor": ["domain/security"],
+    "adversarial-attack": ["domain/security", "challenge/robustness"],
+    "jailbreak": ["domain/security", "task/alignment"],
+    "prompt-injection": ["domain/security", "challenge/alignment-gap"],
+
+    "medical-imaging": ["domain/medical-imaging"],
+    "medical-image": ["domain/medical-imaging"],
+    "healthcare": ["domain/medical-imaging"],
+    "clinical-decision-support": ["domain/medical-imaging"],
+
+    "autonomous-driving": ["domain/autonomous-driving"],
+    "self-driving": ["domain/autonomous-driving"],
+    "autonomous-vehicle": ["domain/autonomous-driving"],
+    "adas": ["domain/autonomous-driving"],
+
+    "remote-sensing": ["domain/remote-sensing"],
+    "earth-observation": ["domain/remote-sensing"],
+    "satellite-imagery": ["domain/remote-sensing"],
+    "geospatial": ["domain/remote-sensing"],
+
+    "scientific-computing": ["domain/scientific-computing"],
+    "scientific-machine-learning": ["domain/scientific-computing"],
+    "computational-science": ["domain/scientific-computing"],
+    "numerical-simulation": ["domain/scientific-computing", "data/simulation"],
+
+    "hci": ["domain/hci"],
+    "human-computer-interaction": ["domain/hci"],
+    "human-ai-interaction": ["domain/hci"],
+    "user-study": ["domain/hci"],
+
+    "web": ["domain/web"],
+    "web-search": ["domain/web"],
+    "search-engine": ["domain/web"],
+    "recommender-system": ["domain/web", "task/ranking"],
+
+    "theory": ["domain/theory"],
+    "learning-theory": ["domain/theory"],
+    "complexity-analysis": ["domain/theory"],
+    "optimization-theory": ["domain/theory", "method/optimization"],
+
+    "classification": ["task/classification"],
+    "image-classification": ["modality/image", "task/classification"],
+    "text-classification": ["modality/text", "task/classification"],
+
+    "detection": ["task/detection"],
+    "object-detection": ["task/detection"],
+    "instance-detection": ["task/detection"],
+    "autonomous-perception": ["domain/autonomous-driving", "task/detection"],
+    "anomaly-detection": ["task/detection", "modality/time-series"],
+
+    "segmentation": ["task/segmentation"],
+    "semantic-segmentation": ["task/segmentation"],
+    "instance-segmentation": ["task/segmentation"],
+    "medical-image-segmentation": ["domain/medical-imaging", "task/segmentation"],
+
+    "generation": ["task/generation"],
+    "text-generation": ["task/generation"],
+    "content-generation": ["task/generation"],
+    "generative-ai": ["task/generation"],
+    "image-generation": ["modality/image", "task/generation"],
+    "text-to-speech": ["modality/speech", "task/generation"],
+
+    "translation": ["task/translation"],
+    "machine-translation": ["task/translation"],
+    "nmt": ["task/translation"],
+
+    "summarization": ["task/summarization"],
+    "text-summarization": ["task/summarization"],
+    "abstractive-summarization": ["task/summarization"],
+
+    "question-answering": ["task/question-answering"],
+    "qa": ["task/question-answering"],
+    "QA": ["task/question-answering"],
+    "vqa": ["modality/multimodal", "task/question-answering"],
+    "open-domain-qa": ["task/question-answering", "method/retrieval-augmented"],
+
+    "retrieval": ["task/retrieval"],
+    "information-retrieval": ["task/retrieval"],
+    "dense-retrieval": ["task/retrieval"],
+    "semantic-search": ["task/retrieval"],
+    "image-retrieval": ["modality/image", "task/retrieval"],
+
+    "ranking": ["task/ranking"],
+    "learning-to-rank": ["task/ranking"],
+    "recommendation": ["task/ranking"],
+
+    "regression": ["task/regression"],
+    "regression-prediction": ["task/regression"],
+    "value-prediction": ["task/regression"],
+    "ctr-prediction": ["task/ranking", "task/regression"],
+
+    "forecasting": ["task/forecasting"],
+    "prediction": ["task/forecasting"],
+    "time-series-forecasting": ["modality/time-series", "task/forecasting"],
+
+    "reasoning": ["task/reasoning"],
+    "logical-reasoning": ["task/reasoning"],
+    "chain-of-thought": ["task/reasoning"],
+    "math-reasoning": ["task/reasoning"],
+    "problem-solving": ["task/reasoning"],
+
+    "planning": ["task/planning"],
+    "motion-planning": ["task/planning"],
+    "path-planning": ["task/planning"],
+    "decision-making": ["task/planning"],
+
+    "control": ["task/control"],
+    "robot-control": ["domain/robotics", "task/control"],
+    "model-predictive-control": ["task/control"],
+
+    "navigation": ["task/navigation"],
+    "slam": ["task/navigation"],
+    "localization": ["task/navigation"],
+    "visual-odometry": ["task/navigation"],
+    "state-estimation": ["task/navigation"],
+
+    "tracking": ["task/tracking"],
+    "object-tracking": ["task/tracking"],
+    "multi-object-tracking": ["task/tracking"],
+    "visual-tracking": ["task/tracking"],
+
+    "pose-estimation": ["task/pose-estimation"],
+    "pose": ["task/pose-estimation"],
+    "keypoint-detection": ["task/pose-estimation"],
+    "6-dof": ["task/pose-estimation", "modality/3d"],
+
+    "clustering": ["task/clustering"],
+    "k-means": ["task/clustering"],
+    "community-detection": ["domain/graph", "task/clustering"],
+    "topic-modeling": ["modality/text", "task/clustering"],
+
+    "representation-learning": ["task/representation-learning"],
+    "feature-learning": ["task/representation-learning"],
+    "embedding-learning": ["task/representation-learning"],
+
+    "code-generation": ["task/code-generation"],
+    "program-synthesis": ["task/code-generation"],
+    "code-completion": ["task/code-generation"],
+    "unit-test-generation": ["task/code-generation"],
+
+    "evaluation": ["task/evaluation"],
+    "model-evaluation": ["task/evaluation"],
+    "benchmarking": ["data/benchmark", "task/evaluation"],
+    "evaluation-protocol": ["meta/analysis", "task/evaluation"],
+
+    "alignment": ["task/alignment"],
+    "dpo": ["task/alignment"],
+    "preference-optimization": ["task/alignment"],
+    "human-feedback": ["task/alignment"],
+    "value-alignment": ["task/alignment"],
+    "rlhf": ["method/reinforcement-learning", "task/alignment"],
+
+    "tool-use": ["task/tool-use"],
+    "tool-calling": ["task/tool-use"],
+    "function-calling": ["task/tool-use"],
+    "llm-agent": ["task/tool-use"],
+    "agentic-workflow": ["task/tool-use"],
+
+    "optimization-problem": ["task/optimization"],
+    "combinatorial-optimization": ["task/optimization"],
+    "mathematical-programming": ["task/optimization"],
+    "solver": ["task/optimization"],
+
+    "text": ["modality/text"],
+    "natural-language": ["modality/text"],
+    "textual-data": ["modality/text"],
+
+    "image": ["modality/image"],
+    "images": ["modality/image"],
+    "still-image": ["modality/image"],
+
+    "video": ["modality/video"],
+    "video-understanding": ["modality/video"],
+    "temporal-video": ["modality/video"],
+
+    "audio": ["modality/audio"],
+    "sound": ["modality/audio"],
+    "acoustic-signal": ["modality/audio"],
+    "audio-visual": ["modality/audio", "modality/video"],
+
+    "speech": ["modality/speech"],
+    "speech-signal": ["modality/speech"],
+    "waveform": ["modality/speech"],
+    "spoken-language": ["modality/speech"],
+
+    "code": ["modality/code"],
+    "source-code": ["modality/code"],
+    "program-text": ["modality/code"],
+
+    "tabular": ["modality/tabular"],
+    "tabular-data": ["modality/tabular"],
+    "structured-data": ["modality/tabular"],
+
+    "graph": ["modality/graph"],
+    "graph-data": ["modality/graph"],
+    "graph-structured-data": ["modality/graph"],
+    "knowledge-graph": ["modality/graph"],
+
+    "time-series": ["modality/time-series"],
+    "time-series-data": ["modality/time-series"],
+    "sequential-data": ["modality/time-series"],
+    "sensor-signal": ["modality/time-series"],
+
+    "point-cloud": ["modality/point-cloud"],
+    "lidar": ["modality/point-cloud"],
+    "lidar-point-cloud": ["modality/point-cloud"],
+    "3d-point-cloud": ["modality/point-cloud"],
+
+    "3d": ["modality/3d"],
+    "3d-data": ["modality/3d"],
+    "depth-map": ["modality/3d"],
+    "mesh": ["modality/3d"],
+    "voxel": ["modality/3d"],
+
+    "multimodal": ["modality/multimodal"],
+    "multi-modal": ["modality/multimodal"],
+    "cross-modal": ["modality/multimodal"],
+    "vision-language": ["modality/multimodal"],
+
+    "transformer": ["method/transformer"],
+    "vision-transformer": ["method/transformer"],
+    "vit": ["method/transformer"],
+    "ViT": ["method/transformer"],
+    "encoder-decoder": ["method/transformer"],
+
+    "cnn": ["method/cnn"],
+    "CNN": ["method/cnn"],
+    "convolutional-neural-network": ["method/cnn"],
+    "convnet": ["method/cnn"],
+    "resnet": ["method/cnn"],
+
+    "rnn": ["method/rnn"],
+    "RNN": ["method/rnn"],
+    "recurrent-neural-network": ["method/rnn"],
+    "lstm": ["method/rnn"],
+    "gru": ["method/rnn"],
+
+    "gnn": ["method/gnn"],
+    "GNN": ["method/gnn"],
+    "graph-neural-network": ["method/gnn"],
+    "message-passing": ["method/gnn"],
+
+    "ssm": ["method/ssm"],
+    "state-space-model": ["method/ssm"],
+    "selective-scan": ["method/ssm"],
+    "mamba": ["method/ssm"],
+    "Mamba": ["method/ssm"],
+
+    "attention": ["method/attention"],
+    "attention-mechanism": ["method/attention"],
+    "self-attention": ["method/attention"],
+    "cross-attention": ["method/attention"],
+    "flash-attention": ["method/attention"],
+
+    "diffusion": ["method/diffusion"],
+    "diffusion-model": ["method/diffusion"],
+    "score-based": ["method/diffusion"],
+    "ddpm": ["method/diffusion"],
+
+    "gan": ["method/gan"],
+    "GAN": ["method/gan"],
+    "generative-adversarial-network": ["method/gan"],
+    "adversarial-training": ["method/gan"],
+
+    "vae": ["method/vae"],
+    "VAE": ["method/vae"],
+    "variational-autoencoder": ["method/vae"],
+    "autoencoder": ["method/vae"],
+
+    "mixture-of-experts": ["method/mixture-of-experts"],
+    "moe": ["method/mixture-of-experts"],
+    "MoE": ["method/mixture-of-experts"],
+    "expert-routing": ["method/mixture-of-experts"],
+    "sparse-moe": ["method/mixture-of-experts", "challenge/sparsity"],
+
+    "contrastive": ["method/contrastive"],
+    "contrastive-learning": ["method/contrastive"],
+    "metric-learning": ["method/contrastive"],
+    "infonce": ["method/contrastive"],
+
+    "self-supervised": ["method/self-supervised"],
+    "self-supervised-learning": ["method/self-supervised"],
+    "masked-modeling": ["method/self-supervised"],
+    "pretext-task": ["method/self-supervised"],
+
+    "reinforcement-learning": ["method/reinforcement-learning"],
+    "policy-gradient": ["method/reinforcement-learning"],
+    "q-learning": ["method/reinforcement-learning"],
+    "ppo": ["method/reinforcement-learning"],
+
+    "distillation": ["method/distillation"],
+    "knowledge-distillation": ["method/distillation"],
+    "self-distillation": ["method/distillation"],
+    "teacher-student": ["method/distillation"],
+
+    "quantization": ["method/quantization"],
+    "quantized-inference": ["method/quantization"],
+    "low-precision": ["method/quantization"],
+    "int8": ["method/quantization"],
+
+    "pruning": ["method/pruning"],
+    "model-pruning": ["method/pruning"],
+    "structured-pruning": ["method/pruning"],
+    "weight-sparsity": ["method/pruning", "challenge/sparsity"],
+
+    "parameter-efficient": ["method/parameter-efficient"],
+    "peft": ["method/parameter-efficient"],
+    "PEFT": ["method/parameter-efficient"],
+    "lora": ["method/parameter-efficient"],
+    "LoRA": ["method/parameter-efficient"],
+    "adapter": ["method/parameter-efficient"],
+
+    "prompt-learning": ["method/prompt-learning"],
+    "prompt-tuning": ["method/prompt-learning"],
+    "prompt-engineering": ["method/prompt-learning"],
+    "soft-prompt": ["method/prompt-learning"],
+
+    "fine-tuning": ["method/fine-tuning"],
+    "finetuning": ["method/fine-tuning"],
+    "instruction-tuning": ["method/fine-tuning"],
+    "supervised-fine-tuning": ["method/fine-tuning"],
+
+    "pretraining": ["method/pretraining"],
+    "pre-training": ["method/pretraining"],
+    "pretrain": ["method/pretraining"],
+
+    "retrieval-augmented": ["method/retrieval-augmented"],
+    "retrieval-augmented-generation": ["method/retrieval-augmented"],
+    "rag": ["method/retrieval-augmented"],
+    "RAG": ["method/retrieval-augmented"],
+
+    "in-context-learning": ["method/in-context-learning"],
+    "icl": ["method/in-context-learning"],
+    "few-shot": ["method/in-context-learning"],
+    "few-shot-learning": ["method/in-context-learning"],
+
+    "multi-task": ["method/multi-task"],
+    "multi-task-learning": ["method/multi-task"],
+    "auxiliary-task": ["method/multi-task"],
+    "joint-training": ["method/multi-task"],
+
+    "curriculum": ["method/curriculum"],
+    "curriculum-learning": ["method/curriculum"],
+    "data-curriculum": ["method/curriculum"],
+
+    "meta-learning": ["method/meta-learning"],
+    "maml": ["method/meta-learning"],
+    "learning-to-learn": ["method/meta-learning"],
+
+    "federated": ["method/federated"],
+    "federated-learning": ["method/federated"],
+    "decentralized-training": ["method/federated"],
+
+    "ensemble": ["method/ensemble"],
+    "ensembling": ["method/ensemble"],
+    "bagging": ["method/ensemble"],
+    "boosting": ["method/ensemble"],
+
+    "loss-design": ["method/loss-design"],
+    "loss-function": ["method/loss-design"],
+    "regularization": ["method/loss-design"],
+    "training-objective": ["method/loss-design"],
+
+    "feature-fusion": ["method/feature-fusion"],
+    "fusion": ["method/feature-fusion"],
+    "multimodal-fusion": ["method/feature-fusion"],
+    "cross-modal-fusion": ["modality/multimodal", "method/feature-fusion"],
+    "sensor-fusion": ["method/feature-fusion"],
+    "early-fusion": ["method/feature-fusion"],
+    "late-fusion": ["method/feature-fusion"],
+
+    "bayesian": ["method/bayesian"],
+    "bayesian-inference": ["method/bayesian"],
+    "variational-inference": ["method/bayesian"],
+    "probabilistic-modeling": ["method/bayesian"],
+
+    "optimization": ["method/optimization"],
+    "gradient-descent": ["method/optimization"],
+    "sgd": ["method/optimization"],
+    "adam": ["method/optimization"],
+    "optimizer": ["method/optimization"],
+
+    "interpretability": ["method/interpretability"],
+    "explainability": ["method/interpretability"],
+    "xai": ["method/interpretability"],
+    "attribution": ["method/interpretability"],
+    "saliency": ["method/interpretability"],
+
+    "dl": ["method/deep-learning"],
+    "DL": ["method/deep-learning"],
+    "deep-learning": ["method/deep-learning"],
+    "neural-network": ["method/deep-learning"],
+    "neural-networks": ["method/deep-learning"],
+
+    "foundation-model": ["method/foundation-model"],
+    "foundation-models": ["method/foundation-model"],
+    "pretrained-model": ["method/foundation-model"],
+    "base-model": ["method/foundation-model"],
+    "large-model": ["method/foundation-model", "domain/llm"],
+
+    "efficiency": ["challenge/efficiency"],
+    "computational-efficiency": ["challenge/efficiency"],
+    "memory-efficiency": ["challenge/efficiency"],
+    "lightweight": ["challenge/efficiency"],
+
+    "scalability": ["challenge/scalability"],
+    "scaling": ["challenge/scalability"],
+    "large-scale-training": ["challenge/scalability"],
+
+    "robustness": ["challenge/robustness"],
+    "adversarial-robustness": ["challenge/robustness"],
+    "noise-robustness": ["challenge/robustness"],
+
+    "generalization": ["challenge/generalization"],
+    "generalisation": ["challenge/generalization"],
+    "transfer-learning": ["challenge/generalization"],
+    "domain-generalization": ["challenge/generalization"],
+    "overfitting": ["challenge/generalization"],
+
+    "hallucination": ["challenge/hallucination"],
+    "factuality": ["challenge/hallucination"],
+    "faithfulness": ["challenge/hallucination"],
+
+    "long-context": ["challenge/long-context"],
+    "context-window": ["challenge/long-context"],
+    "long-document": ["challenge/long-context"],
+    "long-sequence": ["challenge/long-context"],
+
+    "data-scarcity": ["challenge/data-scarcity"],
+    "low-resource": ["challenge/data-scarcity"],
+    "small-data": ["challenge/data-scarcity"],
+    "limited-data": ["challenge/data-scarcity"],
+
+    "distribution-shift": ["challenge/distribution-shift"],
+    "domain-shift": ["challenge/distribution-shift"],
+    "covariate-shift": ["challenge/distribution-shift"],
+    "domain-adaptation": ["challenge/distribution-shift"],
+    "domain-gap": ["challenge/distribution-shift"],
+
+    "label-noise": ["challenge/label-noise"],
+    "noisy-labels": ["challenge/label-noise"],
+    "weak-supervision": ["challenge/label-noise"],
+    "annotation-noise": ["challenge/label-noise"],
+
+    "class-imbalance": ["challenge/class-imbalance"],
+    "imbalanced-data": ["challenge/class-imbalance"],
+    "long-tail": ["challenge/class-imbalance"],
+    "rare-class": ["challenge/class-imbalance"],
+
+    "fairness": ["challenge/fairness"],
+    "bias": ["challenge/fairness"],
+    "algorithmic-bias": ["challenge/fairness"],
+    "demographic-parity": ["challenge/fairness"],
+
+    "privacy": ["challenge/privacy"],
+    "data-privacy": ["challenge/privacy"],
+    "differential-privacy": ["challenge/privacy"],
+    "membership-inference": ["challenge/privacy"],
+
+    "reproducibility": ["challenge/reproducibility"],
+    "reproducibility-crisis": ["challenge/reproducibility"],
+    "benchmark-variance": ["challenge/reproducibility"],
+
+    "catastrophic-forgetting": ["challenge/catastrophic-forgetting"],
+    "continual-learning": ["challenge/catastrophic-forgetting"],
+    "lifelong-learning": ["challenge/catastrophic-forgetting"],
+    "incremental-learning": ["challenge/catastrophic-forgetting"],
+
+    "latency": ["challenge/latency"],
+    "real-time": ["challenge/latency"],
+    "inference-speed": ["challenge/latency"],
+    "throughput": ["challenge/latency"],
+    "edge-deployment": ["challenge/latency", "challenge/efficiency"],
+
+    "sparsity": ["challenge/sparsity"],
+    "sparse-representation": ["challenge/sparsity"],
+    "sparse-computation": ["challenge/sparsity"],
+
+    "alignment-gap": ["challenge/alignment-gap"],
+    "value-misalignment": ["challenge/alignment-gap"],
+    "reward-hacking": ["challenge/alignment-gap"],
+    "specification-gaming": ["challenge/alignment-gap"],
+    "safety-alignment": ["challenge/alignment-gap"],
+
+    "dataset": ["data/dataset"],
+    "corpus": ["data/dataset"],
+    "data-collection": ["data/dataset"],
+    "data-release": ["data/dataset"],
+
+    "benchmark": ["data/benchmark"],
+    "benchmarks": ["data/benchmark"],
+    "eval-suite": ["data/benchmark"],
+
+    "synthetic": ["data/synthetic"],
+    "synthetic-data": ["data/synthetic"],
+    "synthetic-dataset": ["data/synthetic"],
+    "augmentation": ["data/synthetic"],
+    "data-augmentation": ["data/synthetic"],
+
+    "simulation": ["data/simulation"],
+    "simulator": ["data/simulation"],
+    "simulated-environment": ["data/simulation"],
+    "physics-simulation": ["data/simulation"],
+
+    "annotation": ["data/annotation"],
+    "labeling": ["data/annotation"],
+    "labelling": ["data/annotation"],
+    "human-annotation": ["data/annotation"],
+    "crowdsourcing": ["data/annotation"],
+
+    "curation": ["data/curation"],
+    "data-curation": ["data/curation"],
+    "data-cleaning": ["data/curation"],
+    "deduplication": ["data/curation"],
+    "data-quality": ["data/curation"],
+
+    "leaderboard": ["data/leaderboard"],
+    "leaderboards": ["data/leaderboard"],
+    "competition": ["data/leaderboard"],
+
+    "open-source": ["data/open-source"],
+    "open-weights": ["data/open-source"],
+    "open-data": ["data/open-source"],
+    "open-model": ["data/open-source"],
+
+    "survey": ["meta/survey"],
+    "surveys": ["meta/survey"],
+    "review": ["meta/survey"],
+    "literature-review": ["meta/survey"],
+    "taxonomy": ["meta/survey"],
+
+    "roadmap": ["meta/roadmap"],
+    "research-roadmap": ["meta/roadmap"],
+    "open-problems": ["meta/roadmap"],
+    "future-directions": ["meta/roadmap"],
+    "research-gap": ["meta/roadmap"],
+
+    "analysis": ["meta/analysis"],
+    "empirical-analysis": ["meta/analysis"],
+    "ablation": ["meta/analysis"],
+    "ablation-study": ["meta/analysis"],
+    "experiment-design": ["meta/analysis"],
+    "diagnostic-analysis": ["meta/analysis"],
+
+    "design-space": ["meta/design-space"],
+    "design-choices": ["meta/design-space"],
+    "tradeoff-analysis": ["meta/design-space"],
+
+    "reproduction": ["meta/reproduction"],
+    "reproduce": ["meta/reproduction"],
+    "replication": ["meta/reproduction"],
+    "reimplementation": ["meta/reproduction"],
+
+    "position-paper": ["meta/position-paper"],
+    "opinion-paper": ["meta/position-paper"],
+    "perspective-paper": ["meta/position-paper"],
+
+    "tutorial": ["meta/tutorial"],
+    "guide": ["meta/tutorial"],
+    "primer": ["meta/tutorial"],
+    "how-to": ["meta/tutorial"],
+
+    "terminology": ["meta/terminology"],
+    "glossary": ["meta/terminology"],
+    "definitions": ["meta/terminology"],
+
+    "framework": [],
+    "paradigm": [],
+    "backbone": [],
+    "two-stage": [],
+    "synthesis": [],
+    "misc": [],
+    "todo": []
+  },
+
+  "$comment_page_overrides": "逐页修剪表：{工作区相对路径: [要剔除的规范 tag]}。当某页的机械映射结果超出 tags 上限时，在这里显式声明舍弃哪些 tag。默认留空——按自己的库内容填写。",
+  "page_overrides": {}
+}
