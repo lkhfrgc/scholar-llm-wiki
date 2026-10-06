@@ -31,12 +31,12 @@
 ## 方式 B：手工装
 
 ```bash
-git clone https://github.com/YOUR-NAME/llm-wiki-kit /tmp/llm-wiki-kit
+git clone https://github.com/YOUR-NAME/scholar-wiki-kit /tmp/scholar-wiki-kit
 cd /path/to/your-vault
 
 # 只复制这三样；.dsh/ 是目录，复制时要做合并而不是覆盖
-cp -rn /tmp/llm-wiki-kit/.dsh /tmp/llm-wiki-kit/templates .
-cp -n  /tmp/llm-wiki-kit/AGENTS.md .
+cp -rn /tmp/scholar-wiki-kit/.dsh /tmp/scholar-wiki-kit/templates .
+cp -n  /tmp/scholar-wiki-kit/AGENTS.md .
 
 python .dsh/scripts/setup_wiki.py
 python .dsh/scripts/selfcheck.py
@@ -45,9 +45,9 @@ python .dsh/scripts/selfcheck.py
 Windows PowerShell（`Copy-Item` 不带 `-Force` 即不覆盖）：
 
 ```powershell
-git clone https://github.com/YOUR-NAME/llm-wiki-kit $env:TEMP\llm-wiki-kit
-Copy-Item $env:TEMP\llm-wiki-kit\.dsh, $env:TEMP\llm-wiki-kit\templates . -Recurse
-Copy-Item $env:TEMP\llm-wiki-kit\AGENTS.md .
+git clone https://github.com/YOUR-NAME/scholar-wiki-kit $env:TEMP\scholar-wiki-kit
+Copy-Item $env:TEMP\scholar-wiki-kit\.dsh, $env:TEMP\scholar-wiki-kit\templates . -Recurse
+Copy-Item $env:TEMP\scholar-wiki-kit\AGENTS.md .
 python .dsh/scripts/setup_wiki.py
 python .dsh/scripts/selfcheck.py
 ```
@@ -60,7 +60,7 @@ python .dsh/scripts/selfcheck.py
 ```bash
 export WIKI_WORKSPACE=/path/to/your-vault      # Windows: $env:WIKI_WORKSPACE="<你的知识库目录>"
 export WIKI_CONFIG=$WIKI_WORKSPACE/.dsh/wiki.config.json
-python /path/to/llm-wiki-kit/.dsh/scripts/tag_audit.py
+python /path/to/scholar-wiki-kit/.dsh/scripts/tag_audit.py
 ```
 
 `WIKI_WORKSPACE` 覆盖工作区根，`WIKI_CONFIG` 覆盖配置文件位置。两者都可省略。

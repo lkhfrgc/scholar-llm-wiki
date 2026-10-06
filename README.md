@@ -1,12 +1,13 @@
-# LLM Wiki Kit
+# ScholarWiki Kit
 
-> 把碎片化资料**编译**成结构化、高度互链的 Obsidian 知识库 —— 一套给 AI agent 用的工作流工具包。
+> **面向科研与文献整理**：把论文、书籍、课件、网页长文**编译**成结构化、高度互链的 Obsidian 知识库 —— 一套给 AI agent 用的工作流工具包。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.9-blue.svg)
 ![Dependencies](https://img.shields.io/badge/deps-stdlib%20only%20(optional%3A%20PyMuPDF%2C%20Pillow)-green.svg)
 ![Best with Obsidian](https://img.shields.io/badge/best%20with-Obsidian-7C3AED.svg)
 ![Skill host: DSH](https://img.shields.io/badge/skill%20host-DSH-4B8BBE.svg)
+![For research](https://img.shields.io/badge/for-%E7%A7%91%E7%A0%94%E4%B8%8E%E6%96%87%E7%8C%AE%E6%95%B4%E7%90%86-2E7D32.svg)
 
 > 📖 **新手请直接看 [用户手册 `docs/MANUAL.md`](docs/MANUAL.md)** —— 从「这东西是干什么的」讲到「出问题怎么修」。
 >
@@ -19,6 +20,31 @@
 - 三个技能（`ingest` / `query` / `lint`）—— 把「摄入资料 → 生成页面 → 维护索引 → 健康巡检」固化成流水线；
 - 一沓脚本 —— 路径自省、骨架初始化、tag 审计、概念地图生成、PDF 公式提取、环境自检；
 - 一份配置 —— 所有目录名、领域、词表都在 JSON 里，**仓库内零硬编码、零绝对路径**。
+
+---
+
+## 它面向什么：科研与文献整理
+
+**这不是通用笔记应用**——没有待办、日记、看板、周计划。它是**文献进、知识出**的编译器，
+按「一位研究者在几个月里持续读论文」这个场景设计的。具体对应关系：
+
+| 科研中的真实痛点 | 工具包给的解法 |
+|---|---|
+| 论文读完就忘，重读又要从头开始 | **论文讲解页**：不是摘要，而是「核心贡献 → 模块化拆解 → 每个公式配符号表 + 人话解读 → 实验与局限」。结构由 `check_paper_template.py` 强制校验 |
+| 概念散落在几十篇文献里，形不成体系 | **概念页 + 两级分层**：一个概念一页；统领 ≥3 页的升为母页，在 Obsidian 关系图谱里能直接看见骨架 |
+| 「这个想法我好像在哪篇见过」 | **双链 + 关系图谱**；`/query` 必须先读你的库再回答，**禁止凭模型记忆**，答案带 `[[双链]]` 引用 |
+| 没时间维护目录、交叉引用、改名后的链接 | `/ingest` 的收尾动作**强制**更新 `index.md`、追加 `log.md`、重生成概念地图；`/lint` 定期抓死链与孤儿页 |
+| 新读的文献和旧结论矛盾，不知道以哪个为准 | **`## 知识冲突` 区块**显式并存两种说法；lint 的「过时论断」检查会标出可能被新资料推翻的页面 |
+| 研究问题追着追着就散了 | `wiki/questions/` 专门存开放问题，frontmatter 的 `questions` 字段把页面与问题挂起来，lint 出覆盖矩阵 |
+| 公式抄错、上下标丢失、Σ 被解成 `X` | **PDF 公式流水线**：arXiv/DOI 取 LaTeX 真值 → 抽正文定位公式块 → 按 bbox 裁公式小图核对。识别「公式不可靠页」并拒绝把错误结果写进笔记 |
+| 标签越打越乱，最后检索不动 | **7 分面受控词表**（领域 / 任务 / 模态 / 方法 / 问题 / 数据 / 元信息），封闭词表 + 审计脚本，防止标签膨胀 |
+| 时间跨度以月计，半年后要能看懂 | 页面按「面向有扎实数学/计算机背景的读者」写，不做降格简化；`log.md` 保留完整时间线 |
+
+> **为什么专门标注这一点**：Karpathy 的原始 pattern 是通用知识管理（也能用来记健康、
+> 读小说、做竞品分析）。本仓库把它实例化成了**科研文献整理**这一个具体形状——
+> 论文讲解模板、公式流水线、概念分层、受控词表，都是为这个场景加的。
+> 如果你要做的是别的领域，这套代码照样能用，但可能要换掉论文模板和那套 tag 词表
+> （见 [`docs/CUSTOMIZE.md`](docs/CUSTOMIZE.md)）。
 
 ---
 
@@ -46,12 +72,12 @@
 
 把下面这一整句发给你的 DSH，它会自己完成全部安装：
 
-> **请安装 LLM Wiki Kit：把 `https://github.com/YOUR-NAME/llm-wiki-kit` 克隆到临时目录（没有 git 就下载 zip 解压），将仓库里的 `.dsh/`、`AGENTS.md`、`templates/` 复制到当前工作区（`.dsh/` 按目录合并，任何已存在的同名文件都不要覆盖，冲突项另存为 `<原文件名>.kit-new`），然后依次运行 `python .dsh/scripts/setup_wiki.py` 与 `python .dsh/scripts/selfcheck.py`，把体检报告原样贴给我，并提醒我把待摄入资料放进 `raw/research/`；全程不要修改 `raw/` 下的任何文件。**
+> **请安装 ScholarWiki Kit：把 `https://github.com/YOUR-NAME/scholar-wiki-kit` 克隆到临时目录（没有 git 就下载 zip 解压），将仓库里的 `.dsh/`、`AGENTS.md`、`templates/` 复制到当前工作区（`.dsh/` 按目录合并，任何已存在的同名文件都不要覆盖，冲突项另存为 `<原文件名>.kit-new`），然后依次运行 `python .dsh/scripts/setup_wiki.py` 与 `python .dsh/scripts/selfcheck.py`，把体检报告原样贴给我，并提醒我把待摄入资料放进 `raw/research/`；全程不要修改 `raw/` 下的任何文件。**
 
 <details>
 <summary>更短的版本（先试 clone，失败再手工）</summary>
 
-> **克隆 `https://github.com/YOUR-NAME/llm-wiki-kit`，把里面的 `.dsh/` 和 `AGENTS.md` 复制到当前工作区（不要覆盖已有文件），跑 `python .dsh/scripts/setup_wiki.py`，然后把 `selfcheck.py` 的结果给我看。**
+> **克隆 `https://github.com/YOUR-NAME/scholar-wiki-kit`，把里面的 `.dsh/` 和 `AGENTS.md` 复制到当前工作区（不要覆盖已有文件），跑 `python .dsh/scripts/setup_wiki.py`，然后把 `selfcheck.py` 的结果给我看。**
 
 </details>
 
@@ -59,8 +85,8 @@
 <summary>不用 agent，手工装（30 秒）</summary>
 
 ```bash
-git clone https://github.com/YOUR-NAME/llm-wiki-kit /tmp/llm-wiki-kit
-cp -r /tmp/llm-wiki-kit/.dsh /tmp/llm-wiki-kit/AGENTS.md /tmp/llm-wiki-kit/templates .   # 合并式复制
+git clone https://github.com/YOUR-NAME/scholar-wiki-kit /tmp/scholar-wiki-kit
+cp -r /tmp/scholar-wiki-kit/.dsh /tmp/scholar-wiki-kit/AGENTS.md /tmp/scholar-wiki-kit/templates .   # 合并式复制
 python .dsh/scripts/setup_wiki.py
 python .dsh/scripts/selfcheck.py
 ```
@@ -68,8 +94,8 @@ python .dsh/scripts/selfcheck.py
 Windows PowerShell：
 
 ```powershell
-git clone https://github.com/YOUR-NAME/llm-wiki-kit $env:TEMP\llm-wiki-kit
-Copy-Item $env:TEMP\llm-wiki-kit\.dsh, $env:TEMP\llm-wiki-kit\AGENTS.md, $env:TEMP\llm-wiki-kit\templates . -Recurse
+git clone https://github.com/YOUR-NAME/scholar-wiki-kit $env:TEMP\scholar-wiki-kit
+Copy-Item $env:TEMP\scholar-wiki-kit\.dsh, $env:TEMP\scholar-wiki-kit\AGENTS.md, $env:TEMP\scholar-wiki-kit\templates . -Recurse
 python .dsh/scripts/setup_wiki.py
 python .dsh/scripts/selfcheck.py
 ```
@@ -209,6 +235,14 @@ python -m venv .dsh/venv
 那是一份 "idea file"——刻意写得抽象，只讲 pattern、不讲实现，作者本人的用法是
 「直接把它丢给你的 LLM agent，让 agent 和你一起把细节长出来」。**本仓库就是它的一个具体实例化**：
 把抽象 pattern 落成目录契约、技能、脚本和一份开箱即用的安装流程。
+
+> 📛 **三个名字别混**（它们会同时出现在文档里）：
+>
+> | 名字 | 指什么 | 在哪 |
+> |---|---|---|
+> | **ScholarWiki Kit** | 本工具包 / 这个仓库 | README、文档、`LICENSE` |
+> | **LLM Wiki** | Karpathy 的**方法论**名；本仓库是它的一个实现 | `AGENTS.md` 的角色定义、本节的对照表 |
+> | `wiki_name` | **你自己**知识库的名字，显示在概念地图画布标题里 | `.dsh/wiki.config.json`，默认 `科研 Wiki` |
 
 ### 原方法论 → 本工具包的对应关系
 

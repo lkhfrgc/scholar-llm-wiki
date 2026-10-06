@@ -70,7 +70,7 @@ DISPLAY_MARKERS = (
     "\\operatorname", "\\mathcal{L}",
 )
 
-USER_AGENT = "llm-wiki-kit/1.0 (+local knowledge base ingest; contact: vault owner)"
+USER_AGENT = "scholar-wiki-kit/1.0 (+local knowledge base ingest; contact: vault owner)"
 
 PYMUPDF_HINT = (
     "错误：未安装 PyMuPDF —— `--from-pdf` 需要它（`--arxiv` / `--doi` 只用标准库，可直接用）。\n"

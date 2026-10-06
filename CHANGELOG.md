@@ -4,7 +4,13 @@
 
 ## [1.0.0] — 2026-10-06
 
-首个公开发布版：从作者自用的知识库工作流中抽出的通用工具包。
+首个公开发布版：从作者自用的知识库工作流中抽出的工具包，**面向科研与文献整理**
+（论文、书籍、课件、网页长文 → 结构化、高度互链的 Obsidian 知识库）。
+
+> 命名说明：项目名 **ScholarWiki Kit** 指这个工具包；**LLM Wiki** 指 Andrej Karpathy
+> 那份方法论（[`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)），
+> 两者不是一个东西，别混。用户自己知识库的名字由 `.dsh/wiki.config.json` 的 `wiki_name` 决定
+> （默认 `科研 Wiki`）。
 
 ### 新增
 
@@ -57,4 +63,4 @@ PDF 公式流水线、零硬编码），见 README 的[「方法论出处」](RE
 - **假死链必须屏蔽**：文档、模板、注释里到处是「链接的写法」而不是「链接本身」。
   不屏蔽这些，一次检查就报几十条假问题，真问题反而被淹没。
 
-[1.0.0]: https://github.com/YOUR-NAME/llm-wiki-kit/releases/tag/v1.0.0
+[1.0.0]: https://github.com/YOUR-NAME/scholar-wiki-kit/releases/tag/v1.0.0

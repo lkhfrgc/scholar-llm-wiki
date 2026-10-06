@@ -293,7 +293,7 @@ def build_atlas(mothers, pages, fps):
     nedge = sum(len(f[1]) for f in fam)
     gfp = hashlib.sha1((GEN_VERSION + "|" + "|".join(fps[m] for m in sorted(fps))).encode("utf-8")).hexdigest()[:8]
     # 标题不写死库名：库名与画布标题都来自配置（换库/改名后无需改脚本）
-    wiki_name = cfg("wiki_name", default="LLM Wiki")
+    wiki_name = cfg("wiki_name", default="科研 Wiki")
     canvas_title = cfg("canvas", "title", default="概念全景图")
     nodes.append(TC("title", 0, 0, 900, 130,
                     "# %s · %s\n%d 族母页 ｜ %d 个子页 ｜ 层级边 %d 条 ｜ 结构指纹 %s" % (

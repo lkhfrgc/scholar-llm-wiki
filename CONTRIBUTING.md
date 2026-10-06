@@ -63,11 +63,11 @@ python .dsh/scripts/gen_canvas.py --check      # 画布同步
 仓库已经带好 `.gitignore`、`LICENSE` 与 CI 配置，直接推即可：
 
 ```bash
-cd llm-wiki-kit
+cd scholar-wiki-kit
 git init -b main
 git add -A
-git commit -m "feat: LLM Wiki Kit v1.0.0"
-git remote add origin https://github.com/<你的用户名>/llm-wiki-kit.git
+git commit -m "feat: ScholarWiki Kit v1.0.0"
+git remote add origin https://github.com/<你的用户名>/scholar-wiki-kit.git
 git push -u origin main
 ```
 

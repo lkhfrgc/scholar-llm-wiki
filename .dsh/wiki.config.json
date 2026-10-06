@@ -1,8 +1,9 @@
 {
-  "$comment": "LLM Wiki Kit 唯一配置源。所有脚本与技能都从这里读路径，仓库内不允许出现绝对路径。改完保存即生效，无需其它同步动作。",
+  "$comment": "ScholarWiki Kit 唯一配置源。所有脚本与技能都从这里读路径，仓库内不允许出现绝对路径。改完保存即生效，无需其它同步动作。",
   "version": 1,
 
-  "wiki_name": "LLM Wiki",
+  "$comment_wiki_name": "你自己的知识库叫什么。会出现在概念地图画布的标题里（`# <wiki_name> · 概念全景图`）。注意它和工具包名、以及 Karpathy 的「LLM Wiki」方法论名不是一回事。",
+  "wiki_name": "科研 Wiki",
   "language": "zh-CN",
 
   "$comment_vault_prefix": "\"auto\" = 从工作区逐级向上找 .obsidian/ 自动推断库根前缀；也可显式写死，如 \"notes\" 或 \"\"（工作区本身就是库根）。",

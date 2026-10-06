@@ -1,5 +1,5 @@
 {
-  "$comment": "LLM Wiki Kit 的 tag 受控词表数据（词表与引擎分离）。facets 的键顺序 = frontmatter 中 tag 的排序顺序，固定为 domain/task/modality/method/challenge/data/meta，不要改动键顺序。改完运行 `python .dsh/scripts/tag_vocab.py --check` 校验，再 `--emit-doc` 刷新 TAGS.md。",
+  "$comment": "ScholarWiki Kit 的 tag 受控词表数据（词表与引擎分离）。facets 的键顺序 = frontmatter 中 tag 的排序顺序，固定为 domain/task/modality/method/challenge/data/meta，不要改动键顺序。改完运行 `python .dsh/scripts/tag_vocab.py --check` 校验，再 `--emit-doc` 刷新 TAGS.md。",
   "version": 1,
 
   "$comment_facets": "分面的 desc 会写进 TAGS.md 的表格；hint 是「判断问题」，用来判断一个词该归到哪个分面。",
