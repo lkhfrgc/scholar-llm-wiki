@@ -27,8 +27,16 @@
 - **校验与运维**：`check_paper_template.py`（论文页 8 项模板判定 + 死链检查）、
   `selfcheck.py`（环境/依赖/骨架体检）、`setup_wiki.py`（幂等初始化）、
   `repo_lint.py`（提交前的绝对路径/用户名/凭据/BOM 泄露扫描）。
-- **文档**：`README.md`（含一句话安装提示词）、`docs/INSTALL.md`、
-  `docs/CUSTOMIZE.md`、`docs/ARCHITECTURE.md`。
+- **文档**：
+  - `README.md` —— 含「运行环境」说明（**最佳体验 = Obsidian + DSH**，附缺一不可的降级对照）
+    与一句话安装提示词；
+  - `docs/MANUAL.md` —— **用户手册**：从「这东西是干什么的」到「出问题怎么修」，
+    含五个真实使用场景、三个技能的详细用法、目录说明书、Tag 系统通俗版、
+    概念分层与 Canvas 用法、FAQ、分诊表、术语表、进阶用法；
+  - `docs/INSTALL.md`、`docs/CUSTOMIZE.md`、`docs/ARCHITECTURE.md`。
+- **提交前自检** `repo_lint.py`：绝对路径 / 用户名 / 邮箱 / 凭据 / UTF-8 BOM /
+  JSON 与 Python 可解析 / **Markdown 本地链接失效**（围栏代码块、行内代码、
+  HTML 与 Obsidian 注释里的示例链接会被屏蔽，避免假死链淹没真问题）。
 
 ### 设计取舍
 
@@ -36,5 +44,7 @@
 - **可选项优雅退化**：缺 PyMuPDF / Pillow / LibreOffice Kit 时打印可复制的修复命令，
   而不是抛 traceback。
 - **审计用退出码说话**：所有校验脚本 `0 = 通过`，可直接接 CI。
+- **假死链必须屏蔽**：文档、模板、注释里到处是「链接的写法」而不是「链接本身」。
+  不屏蔽这些，一次检查就报几十条假问题，真问题反而被淹没。
 
 [1.0.0]: https://github.com/YOUR-NAME/llm-wiki-kit/releases/tag/v1.0.0

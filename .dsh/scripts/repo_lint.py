@@ -13,6 +13,8 @@ r"""repo_lint —— 提交前的「泄露与格式」自检。
   5. UTF-8 BOM    BOM 会让 frontmatter 首行变成 `\ufeff---`，整个页面被判为「无 frontmatter」
   6. JSON 可解析
   7. Python 可编译
+  8. Markdown 本地链接   相对链接必须指向真实存在的文件
+     （外链、锚点、邮件地址跳过；围栏代码块里的示例链接不算）
 
 命中行若带 `repo-lint:ignore` 标记则豁免（文档需要展示"路径的形状"时用）。
 
@@ -64,6 +66,50 @@ BENIGN_USERS = {
     "shared", "all users", "default", "administrator", "admin", "runner",
     "your_user", "youruser", "<user>", "$user", "%username%", "...",
 }
+
+# Markdown 本地链接：`[文字](target)`。外链、锚点、邮件地址不检查。
+MD_LINK_RE = re.compile(r"\[[^\]\n]*\]\(([^)\s]+)\)")
+FENCE_RE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[ \t]*$")
+INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
+HTML_COMMENT_RE = re.compile(r"(?s)<!--.*?-->")
+OBSIDIAN_COMMENT_RE = re.compile(r"(?s)(?<![\d\\])%%.*?%%")
+
+
+def _blank_keep_newlines(m: re.Match[str]) -> str:
+    """等长空白替换，但保留换行符——这样「第几行」的诊断仍然准确。"""
+    return re.sub(r"[^\n]", " ", m.group(0))
+
+
+def mask_nonlinks(text: str) -> str:
+    """屏蔽「不是真实链接」的区域：围栏代码块、行内代码、HTML 注释、Obsidian 注释。
+
+    文档里大量演示链接的写法（`` `[示例](路径)` ``、```markdown 代码块```、
+    `<!-- 注释掉的条目 -->`），不屏蔽就会满屏假死链，真问题反而被淹没。
+    """
+    out = FENCE_RE.sub(_blank_keep_newlines, text)
+    out = INLINE_CODE_RE.sub(_blank_keep_newlines, out)
+    out = HTML_COMMENT_RE.sub(_blank_keep_newlines, out)
+    return OBSIDIAN_COMMENT_RE.sub(_blank_keep_newlines, out)
+
+
+def check_md_links(rel: str, path: Path, text: str, findings: list[dict]) -> None:
+    """检查 Markdown 里的本地链接是否指向真实存在的文件。
+
+    只看本地相对路径；`http(s)://`、`mailto:`、纯锚点 `#xxx` 一律跳过。
+    这条检查能拦住一类很隐蔽的 bug：文档写在子目录里，
+    链接却按仓库根目录写，本地看着像对的，点开 404。
+    """
+    for m in MD_LINK_RE.finditer(mask_nonlinks(text)):
+        target = m.group(1).strip().strip("<>")
+        if target.startswith(("http://", "https://", "mailto:", "#", "data:")):
+            continue
+        path_part = target.split("#", 1)[0].split("?", 1)[0]
+        if not path_part:
+            continue
+        if not (path.parent / path_part).resolve().exists():
+            lineno = text.count("\n", 0, m.start()) + 1
+            findings.append({"file": rel, "line": lineno, "kind": "mdlink",
+                             "label": "本地链接失效", "match": target})
 
 
 def iter_files(root: Path):
@@ -133,6 +179,9 @@ def main(argv: list[str] | None = None) -> int:
 
         scan_text(rel, text, findings)
 
+        if p.suffix.lower() == ".md":
+            check_md_links(rel, p, text, findings)
+
         if p.suffix == ".json":
             try:
                 json.loads(text)
@@ -174,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
             if len(findings) > args.max_hits:
                 print(f"  … 另有 {len(findings) - args.max_hits} 条未显示")
         else:
-            print("\n✓ 未发现绝对路径、用户名、凭据、BOM 或格式问题")
+            print("\n✓ 未发现绝对路径、用户名、凭据、BOM、失效链接或格式问题")
 
     return 1 if findings else 0
 

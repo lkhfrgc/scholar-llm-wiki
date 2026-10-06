@@ -384,7 +384,7 @@ tags: []   # ⚠️ 只能从 TAGS.md 受控词表取「分面/叶节点」，3�
 
 **这一步不是可选的**——tag 是封闭词表，写错会让 `tag_audit.py` 报错。
 
-1. 打开 [`TAGS.md`](TAGS.md)，或直接读 `.dsh/tag-vocab.json` 的 `canonical`（人读文档 `TAGS.md` 由词表生成，请勿手改），
+1. 打开工作区根目录的 [`TAGS.md`](../../../TAGS.md)，或直接读 `.dsh/tag-vocab.json` 的 `canonical`（人读文档 `TAGS.md` 由词表生成，请勿手改），
    从中**挑**而不是**造**。每个主题 tag 形如 `分面/叶节点`，分面只有七个：
    `domain` / `task` / `modality` / `method` / `challenge` / `data` / `meta`。
 2. 每页选 **3–8 个**（推荐 3–5），逐分面问一遍：

@@ -13,7 +13,9 @@
    python .dsh/scripts/repo_lint.py
    ```
 
-   退出码必须是 0。文档确实需要展示"路径的形状"时，在该行加 `repo-lint:ignore` 标记。
+   退出码必须是 0。它同时检查：绝对路径 / 用户名 / 邮箱 / 凭据 / UTF-8 BOM /
+   JSON 与 Python 可解析 / **Markdown 本地链接是否失效**。
+   文档确实需要展示"路径的形状"时，在该行加 `repo-lint:ignore` 标记。
 
 2. **配置优先于代码**：新的可变项（目录名、文件名、领域、命名前缀）加到
    `.dsh/wiki.config.json` 并在 `wiki_env.DEFAULTS` 里给默认值，不要写成常量。

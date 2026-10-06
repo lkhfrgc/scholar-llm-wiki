@@ -5,6 +5,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.9-blue.svg)
 ![Dependencies](https://img.shields.io/badge/deps-stdlib%20only%20(optional%3A%20PyMuPDF%2C%20Pillow)-green.svg)
+![Best with Obsidian](https://img.shields.io/badge/best%20with-Obsidian-7C3AED.svg)
+![Skill host: DSH](https://img.shields.io/badge/skill%20host-DSH-4B8BBE.svg)
+
+> 📖 **新手请直接看 [用户手册 `docs/MANUAL.md`](docs/MANUAL.md)** —— 从「这东西是干什么的」讲到「出问题怎么修」。
 
 它不是「笔记模板」，而是一套**可执行的知识库契约**：
 
@@ -15,9 +19,29 @@
 
 ---
 
+## 运行环境（装之前先看这一段）
+
+**最佳体验 = Obsidian + DSH（DeepSeek Harness）。** 这两者不是可选项，而是这套工具「能跑」和「好用」的分界线：
+
+| 组件 | 角色 | 没有它会怎样 |
+|---|---|---|
+| **DSH（DeepSeek Harness）** | **技能宿主**。它读取 `.dsh/skills/<name>/SKILL.md`，把 `/ingest`、`/query`、`/lint` 变成可触发的流水线；同时自动加载 `AGENTS.md` 作为工作规范 | 13 个脚本照样能用（纯 Python），但三个技能不会自动触发，`AGENTS.md` 也不会自动生效——你得手动指挥每一步 |
+| **Obsidian** | **呈现层**。`[[双链]]` 的反向链接、关系图谱、`.canvas` 概念地图、tag 面板都由它渲染 | 页面仍是标准 Markdown，能用任何编辑器打开；但**关系图谱、反向链接和概念地图看不到**，知识网络的「网」就退化成一堆散文件 |
+| **Python ≥ 3.9** | 全部脚本的运行环境 | 脚本无法运行，只剩 `AGENTS.md` 规范文本 |
+| PyMuPDF / Pillow / LibreOffice Kit | 只服务 PDF 公式提取 | PDF 正文与公式走不了自动路径，其它功能不受影响（脚本会给出安装指引） |
+
+一句话：**DSH 负责「怎么干」，Obsidian 负责「看得见」。**
+
+> 想换个 harness（Claude Code / Cursor 等）？脚本层完全可移植，只需把 `.dsh/skills/` 搬到该
+> harness 的技能目录、把 `AGENTS.md` 复制成它认识的指令文件。技能正文引用了 DSH 的工具名
+> （`skill` / `grep` / `glob` / `read` / `read_image`）与 `office-docx` 技能，换宿主时需要
+> 相应替换——这一步是机械劳动，但必须做，否则技能会「找工具失败」而退化成凭记忆回答。
+
+---
+
 ## 🚀 一句话安装
 
-把下面这一整句发给你的 agent（DeepSeek Harness / Claude Code / Cursor / 任何能读写文件并执行命令的 harness），它会自己完成全部安装：
+把下面这一整句发给你的 DSH，它会自己完成全部安装：
 
 > **请安装 LLM Wiki Kit：把 `https://github.com/YOUR-NAME/llm-wiki-kit` 克隆到临时目录（没有 git 就下载 zip 解压），将仓库里的 `.dsh/`、`AGENTS.md`、`templates/` 复制到当前工作区（`.dsh/` 按目录合并，任何已存在的同名文件都不要覆盖，冲突项另存为 `<原文件名>.kit-new`），然后依次运行 `python .dsh/scripts/setup_wiki.py` 与 `python .dsh/scripts/selfcheck.py`，把体检报告原样贴给我，并提醒我把待摄入资料放进 `raw/research/`；全程不要修改 `raw/` 下的任何文件。**
 
@@ -107,7 +131,7 @@ python .dsh/scripts/tag_verify_migration.py    # 独立复核迁移结果
 python .dsh/scripts/gen_canvas.py [--check]    # 生成 / 校验概念地图画布
 python .dsh/scripts/check_paper_template.py    # 论文页模板合规校验（--links 顺带查死链）
 
-python .dsh/scripts/repo_lint.py               # 提交前扫描：绝对路径 / 用户名 / 凭据 / BOM
+python .dsh/scripts/repo_lint.py               # 提交前扫描：绝对路径 / 用户名 / 凭据 / BOM / 失效链接
 
 python .dsh/scripts/fetch_source.py --arxiv 1706.03762v7   # arXiv/DOI → LaTeX 公式真值（仅标准库）
 python .dsh/scripts/extract_pdf.py paper.pdf --math -o out.txt     # PDF 正文抽取（需 PyMuPDF）
@@ -140,15 +164,15 @@ python .dsh/scripts/crop_equations.py --manifest m.json --equations e.json --out
 
 ---
 
-## 依赖
+## Python 依赖（可选）
 
-| 依赖 | 谁需要 | 必需性 |
+上面「运行环境」表里的必装项只有 Python 本身。这三个是**可选**的，只有用到 PDF 公式提取才需要：
+
+| 依赖 | 谁需要 | 没有它 |
 |---|---|---|
-| Python ≥ 3.9 | 全部脚本 | 必需 |
-| PyMuPDF | `extract_pdf.py`（PDF 正文抽取） | 可选 |
-| Pillow | `crop_equations.py`（公式裁剪） | 可选 |
-| LibreOffice Kit（harness 提供） | 扫描版 PDF / 公式区域渲染 | 可选 |
-| Obsidian | 看双链、图谱、Canvas | 可选（纯 markdown 也能用） |
+| PyMuPDF | `extract_pdf.py`（PDF 正文抽取） | 摄入 PDF 时正文走不了自动路径，脚本打印安装指引 |
+| Pillow | `crop_equations.py`（公式区域裁剪） | 扫描版 PDF / 公式核对只能整页看 |
+| LibreOffice Kit（DSH 的 `office-docx` 技能提供路径） | 公式区域渲染 | 同上 |
 
 把可变依赖关在项目 venv 里，**不污染系统 Python**：
 
@@ -157,6 +181,8 @@ python -m venv .dsh/venv
 # Windows:      .dsh\venv\Scripts\python.exe -m pip install -r .dsh/requirements.txt
 # macOS/Linux:  .dsh/venv/bin/python       -m pip install -r .dsh/requirements.txt
 ```
+
+或者一步到位：`python .dsh/scripts/setup_wiki.py --venv`。
 
 缺依赖时脚本不会崩：会打印精确的安装指引并以退出码 1 退出。
 
@@ -175,10 +201,12 @@ python -m venv .dsh/venv
 
 ## 文档
 
+- **[`docs/MANUAL.md`](docs/MANUAL.md) —— 用户手册（新手从这里开始，从零讲到进阶）**
 - [`AGENTS.md`](AGENTS.md) —— 完整架构契约（也是安装后给 AI 读的那份）
 - [`docs/INSTALL.md`](docs/INSTALL.md) —— 安装细节、目录布局、故障排查
 - [`docs/CUSTOMIZE.md`](docs/CUSTOMIZE.md) —— 改目录名 / 换词表 / 换领域 / 加技能
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) —— 数据流与脚本地图
+- [`TAGS.md`](TAGS.md) —— 内置 tag 受控词表（随包附带的种子词表）
 
 ---
 
