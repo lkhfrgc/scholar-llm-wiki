@@ -1,4 +1,4 @@
-# ScholarWiki Kit 用户手册
+# Scholar LLM Wiki 用户手册
 
 > 面向使用者，不是面向开发者。从「这东西到底是干什么的」讲到「出问题怎么修」。
 > 想了解内部实现请看 [`ARCHITECTURE.md`](ARCHITECTURE.md)，想改配置请看 [`CUSTOMIZE.md`](CUSTOMIZE.md)。
@@ -136,12 +136,12 @@
 ### 手工安装
 
 ```bash
-git clone https://github.com/lkhfrgc/scholar-wiki-kit /tmp/scholar-wiki-kit
+git clone https://github.com/lkhfrgc/scholar-llm-wiki /tmp/scholar-llm-wiki
 cd /path/to/your-vault
 
 # 只复制这三样
-cp -r /tmp/scholar-wiki-kit/.dsh /tmp/scholar-wiki-kit/templates .
-cp /tmp/scholar-wiki-kit/AGENTS.md .
+cp -r /tmp/scholar-llm-wiki/.dsh /tmp/scholar-llm-wiki/templates .
+cp /tmp/scholar-llm-wiki/AGENTS.md .
 
 python .dsh/scripts/setup_wiki.py     # 建目录骨架、生成 index/log/TAGS/初始画布
 python .dsh/scripts/selfcheck.py      # 体检
@@ -871,7 +871,7 @@ git add -A && git commit -m "init: 知识库"
 
 ```bash
 export WIKI_WORKSPACE=/path/to/vault-a     # Windows: $env:WIKI_WORKSPACE="..."
-python /path/to/scholar-wiki-kit/.dsh/scripts/tag_audit.py
+python /path/to/scholar-llm-wiki/.dsh/scripts/tag_audit.py
 ```
 
 ### 15.4 定制 PDF 流水线

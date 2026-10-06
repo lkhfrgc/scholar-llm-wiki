@@ -1,4 +1,4 @@
-# ScholarWiki Kit
+# Scholar LLM Wiki
 
 > **文献进，知识出。** 面向**科研与文献整理**的知识库工具包：AI agent 把论文、书籍、课件、网页长文**编译**成结构化、高度互链的 Obsidian 知识库。
 >
@@ -74,12 +74,12 @@
 
 把下面这一整句发给你的 DSH，它会自己完成全部安装：
 
-> **请安装 ScholarWiki Kit：把 `https://github.com/lkhfrgc/scholar-wiki-kit` 克隆到临时目录（没有 git 就下载 zip 解压），将仓库里的 `.dsh/`、`AGENTS.md`、`templates/` 复制到当前工作区（`.dsh/` 按目录合并，任何已存在的同名文件都不要覆盖，冲突项另存为 `<原文件名>.kit-new`），然后依次运行 `python .dsh/scripts/setup_wiki.py` 与 `python .dsh/scripts/selfcheck.py`，把体检报告原样贴给我，并提醒我把待摄入资料放进 `raw/research/`；全程不要修改 `raw/` 下的任何文件。**
+> **请安装 Scholar LLM Wiki：把 `https://github.com/lkhfrgc/scholar-llm-wiki` 克隆到临时目录（没有 git 就下载 zip 解压），将仓库里的 `.dsh/`、`AGENTS.md`、`templates/` 复制到当前工作区（`.dsh/` 按目录合并，任何已存在的同名文件都不要覆盖，冲突项另存为 `<原文件名>.kit-new`），然后依次运行 `python .dsh/scripts/setup_wiki.py` 与 `python .dsh/scripts/selfcheck.py`，把体检报告原样贴给我，并提醒我把待摄入资料放进 `raw/research/`；全程不要修改 `raw/` 下的任何文件。**
 
 <details>
 <summary>更短的版本（先试 clone，失败再手工）</summary>
 
-> **克隆 `https://github.com/lkhfrgc/scholar-wiki-kit`，把里面的 `.dsh/` 和 `AGENTS.md` 复制到当前工作区（不要覆盖已有文件），跑 `python .dsh/scripts/setup_wiki.py`，然后把 `selfcheck.py` 的结果给我看。**
+> **克隆 `https://github.com/lkhfrgc/scholar-llm-wiki`，把里面的 `.dsh/` 和 `AGENTS.md` 复制到当前工作区（不要覆盖已有文件），跑 `python .dsh/scripts/setup_wiki.py`，然后把 `selfcheck.py` 的结果给我看。**
 
 </details>
 
@@ -87,8 +87,8 @@
 <summary>不用 agent，手工装（30 秒）</summary>
 
 ```bash
-git clone https://github.com/lkhfrgc/scholar-wiki-kit /tmp/scholar-wiki-kit
-cp -r /tmp/scholar-wiki-kit/.dsh /tmp/scholar-wiki-kit/AGENTS.md /tmp/scholar-wiki-kit/templates .   # 合并式复制
+git clone https://github.com/lkhfrgc/scholar-llm-wiki /tmp/scholar-llm-wiki
+cp -r /tmp/scholar-llm-wiki/.dsh /tmp/scholar-llm-wiki/AGENTS.md /tmp/scholar-llm-wiki/templates .   # 合并式复制
 python .dsh/scripts/setup_wiki.py
 python .dsh/scripts/selfcheck.py
 ```
@@ -96,8 +96,8 @@ python .dsh/scripts/selfcheck.py
 Windows PowerShell：
 
 ```powershell
-git clone https://github.com/lkhfrgc/scholar-wiki-kit $env:TEMP\scholar-wiki-kit
-Copy-Item $env:TEMP\scholar-wiki-kit\.dsh, $env:TEMP\scholar-wiki-kit\AGENTS.md, $env:TEMP\scholar-wiki-kit\templates . -Recurse
+git clone https://github.com/lkhfrgc/scholar-llm-wiki $env:TEMP\scholar-llm-wiki
+Copy-Item $env:TEMP\scholar-llm-wiki\.dsh, $env:TEMP\scholar-llm-wiki\AGENTS.md, $env:TEMP\scholar-llm-wiki\templates . -Recurse
 python .dsh/scripts/setup_wiki.py
 python .dsh/scripts/selfcheck.py
 ```
@@ -242,9 +242,12 @@ python -m venv .dsh/venv
 >
 > | 名字 | 指什么 | 在哪 |
 > |---|---|---|
-> | **ScholarWiki Kit** | 本工具包 / 这个仓库 | README、文档、`LICENSE` |
-> | **LLM Wiki** | Karpathy 的**方法论**名；本仓库是它的一个实现 | `AGENTS.md` 的角色定义、本节的对照表 |
+> | **Scholar LLM Wiki** | 本工具包 / 这个仓库 | README、文档、`LICENSE` |
+> | **LLM Wiki** | Karpathy 的**方法论**名 | [`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)、`AGENTS.md` 的角色定义、本节的对照表 |
 > | `wiki_name` | **你自己**知识库的名字，显示在概念地图画布标题里 | `.dsh/wiki.config.json`，默认 `科研 Wiki` |
+>
+> 项目名里带 `LLM Wiki` 是**故意的**——它的意思就是「面向学术的 LLM Wiki」，
+> 名字本身就说明了血统：这不是另起炉灶，是把那份方法论落到科研文献这个场景上。
 
 ### 原方法论 → 本工具包的对应关系
 

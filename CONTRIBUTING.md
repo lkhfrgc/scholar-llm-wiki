@@ -61,7 +61,7 @@ python .dsh/scripts/gen_canvas.py --check      # 画布同步
 ## 发布与推送
 
 仓库已初始化完毕（`.gitignore`、`LICENSE`、CI 配置、占位符全部就位），
-`origin` 指向 <https://github.com/lkhfrgc/scholar-wiki-kit>。日常推送就是普通流程：
+`origin` 指向 <https://github.com/lkhfrgc/scholar-llm-wiki>。日常推送就是普通流程：
 
 ```bash
 git add -A

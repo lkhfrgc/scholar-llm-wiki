@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""wiki_env —— ScholarWiki Kit 的共享环境解析层（仅标准库，零第三方依赖）。
+"""wiki_env —— Scholar LLM Wiki 的共享环境解析层（仅标准库，零第三方依赖）。
 
 **这是全仓唯一允许"找路径"的地方。** 其余脚本一律通过本模块拿工作区根、
 库根前缀、目录与配置，因此仓库内不得出现任何绝对路径、盘符或用户名。
@@ -315,7 +315,7 @@ def describe() -> dict:
 
 
 USAGE = """\
-wiki_env —— ScholarWiki Kit 的共享环境解析层（全仓唯一允许"找路径"的地方）
+wiki_env —— Scholar LLM Wiki 的共享环境解析层（全仓唯一允许"找路径"的地方）
 
 用法：
   python .dsh/scripts/wiki_env.py            打印工作区根、库根前缀与完整配置（JSON）
