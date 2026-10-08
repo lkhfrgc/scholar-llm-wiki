@@ -88,7 +88,7 @@ my-vault/               ← .obsidian/ 在这里（库根）
 3. `python .dsh/scripts/tag_vocab.py --check` —— 必须 0。
    它会报「规范 tag 无任何映射来源（死词条）」，意思是每个叶节点至少要在 `map` 里
    被某个来源词指到，否则审计时统计不到它；
-4. `python .dsh/scripts/tag_vocab.py --emit-doc` 刷新 `TAGS.md`；
+4. （仅当改了**分面或规则**）`python .dsh/scripts/tag_vocab.py --emit-doc` 重新生成 `TAGS.md`；
 5. `python .dsh/scripts/tag_audit.py` 复核。
 
 ### 页面上已经写了一堆旧 tag

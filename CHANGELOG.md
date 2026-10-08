@@ -22,9 +22,12 @@
   Obsidian 库根前缀自动探测、配置深合并、跨平台解释器解析、路径自省 CLI。
 - **配置化**：`.dsh/wiki.config.json` 描述全部目录名/文件名/领域/画布命名；
   `.dsh/tag-vocab.json` 承载 tag 词表数据。仓库内零绝对路径、零机器信息。
-- **tag 子系统**：`tag_vocab.py`（引擎 + `--check` / `--emit-doc`）、
+- **tag 子系统**：`tag_vocab.py`（引擎 + `--list` / `--check` / `--emit-doc`）、
   `tag_apply.py`（幂等迁移，字节级最小改动，支持回滚）、`tag_audit.py`（审计，退出码说话）、
   `tag_verify_migration.py`（独立复核）。
+  **规范与数据分家**：`TAGS.md` 只承载**不随项目变化的规则**（七个分面、硬规则、新增流程、
+  反面清单），具体词条一律留在 `.dsh/tag-vocab.json`，用 `--list` 现查。
+  这样换一套领域词表不必重写规范文档，读者也不会把某个初始词表误当成"工具自带的推荐词表"。
 - **概念地图** `gen_canvas.py`：总图 + 单族图，结构指纹驱动 `--check`，
   卡片一律 `text` 节点 + 双链（不用 `file` 节点）。
 - **PDF 三件套**：`fetch_source.py`（arXiv/DOI → LaTeX 公式真值，仅标准库）、

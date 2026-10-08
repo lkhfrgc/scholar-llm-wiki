@@ -229,7 +229,7 @@ python .dsh/scripts/wiki_env.py --json      # 完整配置 + 解析结果
    - 该 tag 其实是已有词条的近义/大小写/单复数变体 → 在 `.dsh/tag-vocab.json` 的 `map` 里
      登记「来源词 → 规范词」，然后 `tag_apply.py`（先预演，再 `--apply`）。
    - 该 tag 确有独立检索价值（**≥3 个页面**用得上，且能归入某个分面）→ 在 `canonical`
-     增加词条 + `map` 登记来源，再 `--emit-doc` 刷新 `TAGS.md`。
+     增加词条 + `map` 登记来源（`TAGS.md` 只写规则、不列词条，无需刷新）。
    - 两者都不成立 → 删掉这个 tag（信息写进正文即可）。
 5. 收尾：修改词表后按 AGENTS.md「Tag 规范 → 改动流程」五步执行
    （改 `canonical` / `map` → `tag_vocab.py --check` → `--emit-doc` → `tag_apply.py --apply` → `tag_audit.py`），

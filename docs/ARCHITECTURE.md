@@ -73,17 +73,22 @@ raw/research/ 的源文件
 .dsh/tag-vocab.json          ← 词表数据（facets / canonical / map / page_overrides）
         │
 tag_vocab.py                 ← 引擎：加载数据 → CANONICAL / MAP / ORDER / translate / check / emit_doc
+        ├─ --list             ←  列出当前词表全部词条（"允许哪些词"的查询入口）
         ├─ --check            ←  自洽性：map 指向的词条存在、无死词条、分面合法
-        ├─ --emit-doc         ←  生成 TAGS.md（人读文档）
+        ├─ --emit-doc         ←  生成 TAGS.md 规则文档（只写规则，不列词条）
         ↓
 tag_apply.py                 ← 按 map 批量改写页面 frontmatter 的 tags 行（预演 / --apply / --rollback）
 tag_audit.py                 ← 全库审计：未登记 tag、超限、频次分布
 tag_verify_migration.py      ← 独立复核：备份 → 重新推导 → 与磁盘逐页比对
 ```
 
-三条设计约束：
+四条设计约束：
 
 - **词表是数据不是代码** —— 只有放在 JSON 里才能被审计、被 diff、被迁移；
+- **规范与数据分家** —— `TAGS.md` 只写**不随项目变化的规则**（分面、硬规则、流程），
+  具体词条一律留在 `.dsh/tag-vocab.json`。把词条抄进规范文档会让两者耦合：
+  换一套领域词表就得重写文档，而且读者会把那些词误当成"工具自带的推荐词表"。
+  代价是"看词表"要多跑一条 `--list`，换来的是文档永不失效；
 - **改写只动 `tags:` 一行** —— 走 `read_bytes`/`write_bytes`，连行尾符都不归一化，git diff 干净；
 - **映射是幂等的** —— 对已是规范 tag 的页面重复执行不产生变化。
 

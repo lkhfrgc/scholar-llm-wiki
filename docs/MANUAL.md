@@ -346,7 +346,7 @@ raw/research/Attention-Is-All-You-Need.pdf
 ```
 你的知识库/
 ├── AGENTS.md          ← AI 的工作规范（别删，每次对话都会读）
-├── TAGS.md            ← 标签词表（脚本生成，别手改）
+├── TAGS.md            ← Tag 规范：只写规则不列词条（脚本生成，别手改）
 ├── index.md           ← 总目录（AI 维护，你可以看，但别跟它抢着改）
 ├── log.md             ← 操作日志（只追加，AI 维护）
 ├── .dsh/              ← 工具本体（配置 + 技能 + 脚本）
@@ -486,7 +486,8 @@ tags: [子概念, method/attention, method/transformer]
 `自注意力`、`self-attention`……半年后你有 600 个标签，每个只用过一次。
 **标签就彻底失去检索价值了。**
 
-所以本工具用**封闭词表**：AI 只能从 `TAGS.md` 里列出的词条中挑，挑不到就得先申请新增。
+所以本工具用**封闭词表**：AI 只能从 `.dsh/tag-vocab.json` 里登记过的词条中挑，挑不到就得先申请新增。
+想看看当前允许哪些词：`python .dsh/scripts/tag_vocab.py --list`。
 
 ### 七个分面 = 七个问题
 
@@ -524,7 +525,7 @@ tags: [子概念, method/attention, method/transformer]
 # 2. 校验词表自洽
 python .dsh/scripts/tag_vocab.py --check
 
-# 3. 刷新给人看的 TAGS.md
+# 3. （仅当改了分面/规则）重新生成 TAGS.md
 python .dsh/scripts/tag_vocab.py --emit-doc
 
 # 4. 如果有页面用了旧写法，批量迁移（先预演，再写盘，会自动备份）
@@ -650,7 +651,8 @@ python .dsh/scripts/selfcheck.py               # 体检：环境 / 依赖 / 骨�
 
 # —— Tag 词表 ——
 python .dsh/scripts/tag_vocab.py --check       # 词表自洽
-python .dsh/scripts/tag_vocab.py --emit-doc    # 刷新 TAGS.md
+python .dsh/scripts/tag_vocab.py --list        # 列出当前词表全部词条
+python .dsh/scripts/tag_vocab.py --emit-doc    # 重新生成 TAGS.md（改规则时才需要）
 python .dsh/scripts/tag_audit.py               # 全库审计
 python .dsh/scripts/tag_audit.py --unregistered # 只看未登记的
 python .dsh/scripts/tag_apply.py [--apply]     # 批量迁移标签（预演 / 写盘）

@@ -160,7 +160,7 @@ created: YYYY-MM-DD
 updated: YYYY-MM-DD
 sources: ["raw/子目录/文件名"]
 questions: []      # 见步骤 6
-tags: []   # ⚠️ 只能从 TAGS.md 受控词表取「分面/叶节点」，3–8 个，禁止自造词
+tags: []   # ⚠️ 只能从 .dsh/tag-vocab.json 的 canonical 取「分面/叶节点」，3–8 个，禁止自造词
 ---
 
 ## 我的批注
@@ -261,7 +261,7 @@ created: YYYY-MM-DD
 updated: YYYY-MM-DD
 sources: ["raw/子目录/文件名"]
 questions: []      # 见步骤 6
-tags: []   # ⚠️ 只能从 TAGS.md 受控词表取「分面/叶节点」，3–8 个，禁止自造词
+tags: []   # ⚠️ 只能从 .dsh/tag-vocab.json 的 canonical 取「分面/叶节点」，3–8 个，禁止自造词
 代码仓库: []   # 代码仓库链接
 ---
 
@@ -315,7 +315,7 @@ type: connection
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 sources: ["raw/子目录/文件名"]
-tags: []   # ⚠️ 只能从 TAGS.md 受控词表取「分面/叶节点」，3–8 个，禁止自造词
+tags: []   # ⚠️ 只能从 .dsh/tag-vocab.json 的 canonical 取「分面/叶节点」，3–8 个，禁止自造词
 ---
 
 ## 涉及概念
@@ -355,7 +355,7 @@ created: YYYY-MM-DD
 updated: YYYY-MM-DD
 sources: ["raw/子目录/文件名"]
 questions: []      # 该问题自身关联的核心问题编号
-tags: []   # ⚠️ 只能从 TAGS.md 受控词表取「分面/叶节点」，3–8 个，禁止自造词
+tags: []   # ⚠️ 只能从 .dsh/tag-vocab.json 的 canonical 取「分面/叶节点」，3–8 个，禁止自造词
 ---
 
 ## 问题陈述
@@ -384,7 +384,8 @@ tags: []   # ⚠️ 只能从 TAGS.md 受控词表取「分面/叶节点」，3�
 
 **这一步不是可选的**——tag 是封闭词表，写错会让 `tag_audit.py` 报错。
 
-1. 打开工作区根目录的 [`TAGS.md`](../../../TAGS.md)，或直接读 `.dsh/tag-vocab.json` 的 `canonical`（人读文档 `TAGS.md` 由词表生成，请勿手改），
+1. **列出当前词表**：`python .dsh/scripts/tag_vocab.py --list`，或直接读 `.dsh/tag-vocab.json` 的 `canonical`。
+   注意 `TAGS.md` 是**规则**文档、**不列词条**，别去那里找词。
    从中**挑**而不是**造**。每个主题 tag 形如 `分面/叶节点`，分面只有七个：
    `domain` / `task` / `modality` / `method` / `challenge` / `data` / `meta`。
 2. 每页选 **3–8 个**（推荐 3–5），逐分面问一遍：
@@ -404,7 +405,7 @@ tags: []   # ⚠️ 只能从 TAGS.md 受控词表取「分面/叶节点」，3�
 
 1. 在 `.dsh/tag-vocab.json` 的 `canonical` 加 `叶节点: 中文释义`，在 `map` 里登记来源词；
 2. `python .dsh/scripts/tag_vocab.py --check` —— 词表自洽；
-3. `python .dsh/scripts/tag_vocab.py --emit-doc` —— 刷新 `TAGS.md`；
+3. （仅当改了**分面或规则**）`python .dsh/scripts/tag_vocab.py --emit-doc` —— 重新生成 `TAGS.md`；
 4. `python .dsh/scripts/tag_apply.py`（预演）→ `--apply`（写盘，自动备份到 `.dsh/tmp/tags-backup-*.json`）；
 5. `python .dsh/scripts/tag_audit.py` —— 复核，退出码必须为 0。
 

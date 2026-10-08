@@ -16,7 +16,7 @@
 ```
 <工作区根>/
 ├── AGENTS.md                  # 本文件：Agent 指令与目录契约
-├── TAGS.md                    # Tag 受控词表（由 tag_vocab.py 生成，勿手改）
+├── TAGS.md                    # Tag 规范：只写规则不列词条（生成物，勿手改）
 ├── index.md                   # 所有页面的目录（AI 维护）
 ├── log.md                     # 操作日志（AI 维护，append-only）
 ├── 我的研究/                   # 存放你自己的研究内容（AI 不主动改写）
@@ -137,7 +137,8 @@ tags: [domain/llm, task/reasoning, method/transformer]
 
 ### Tag 规范（受控词表）
 
-**唯一权威来源 = `.dsh/tag-vocab.json`；人读文档 = [`TAGS.md`](TAGS.md)（由脚本生成，请勿手改）。**
+**唯一权威来源 = `.dsh/tag-vocab.json`**（词条数据；查当前词条用 `python .dsh/scripts/tag_vocab.py --list`）。
+[`TAGS.md`](TAGS.md) 是**规则文档**——只写规范、**不列词条**（同样由脚本生成，请勿手改）。
 
 - **两级嵌套 + 7 个分面**：主题 tag 一律写作 `分面/叶节点`。分面只有七个——
   `domain`（领域与平台）、`task`（任务）、`modality`（模态）、`method`（方法/机制）、
@@ -145,7 +146,8 @@ tags: [domain/llm, task/reasoning, method/transformer]
   分面的中文释义与"判断问题"写在 `.dsh/tag-vocab.json` 的 `facets` 里，可自定义。
 - **角色 tag 是唯一例外**：`母概念` / `子概念` 不带前缀，且**必须是 `tags` 的第一项**——
   `gen_canvas.py` 与 lint 检查 7 依赖其字面值与位置，不得改名、不得加前缀。
-- **封闭词表**：只允许 `TAGS.md` 列出的词条，**禁止临场造词**。未登记 tag 会被
+- **封闭词表**：只允许 `.dsh/tag-vocab.json` 的 `canonical` 里登记过的词条，**禁止临场造词**
+  （查当前词条：`python .dsh/scripts/tag_vocab.py --list`）。未登记 tag 会被
   `tag_audit.py` 判为违规并给出非 0 退出码。
 - **数量**：每页主题 tag 1–8 个（推荐 3–5）；分面软上限
   domain 2 / task 4 / modality 4 / method 6 / challenge 4 / data 2 / meta 2。
@@ -161,7 +163,8 @@ tags: [domain/llm, task/reasoning, method/transformer]
   1. 在 `.dsh/tag-vocab.json` 的 `canonical` 加 `叶节点: 中文释义`，在 `map` 登记来源词
      （一条来源可映射到多个规范 tag，用于合并近义词、单复数、大小写差异）；
   2. `python .dsh/scripts/tag_vocab.py --check` —— 词表自洽；
-  3. `python .dsh/scripts/tag_vocab.py --emit-doc` —— 刷新 `TAGS.md`；
+  3. （仅当改了**分面或规则**）`python .dsh/scripts/tag_vocab.py --emit-doc` —— 重新生成 `TAGS.md`；
+     单纯增删词条**不用**刷新它，因为 `TAGS.md` 只写规则、不列词条；
   4. `python .dsh/scripts/tag_apply.py`（预演）→ `--apply`（写盘，自动备份到 `.dsh/tmp/tags-backup-*.json`）；
   5. `python .dsh/scripts/tag_audit.py` —— 复核，退出码必须为 0。
 
@@ -311,7 +314,8 @@ tags: [domain/llm, task/reasoning, method/transformer]
 | `python .dsh/scripts/setup_wiki.py` | 初始化/补齐目录骨架（幂等） | 非 0 = 有步骤失败 |
 | `python .dsh/scripts/selfcheck.py` | 环境、依赖、骨架体检 | 非 0 = 必需项失败 |
 | `python .dsh/scripts/tag_vocab.py --check` | 词表自洽性 | 非 0 = 词表有错 |
-| `python .dsh/scripts/tag_vocab.py --emit-doc` | 用词表刷新 `TAGS.md` | 0 |
+| `python .dsh/scripts/tag_vocab.py --list` | 列出当前词表全部词条（按分面分组） | 0 |
+| `python .dsh/scripts/tag_vocab.py --emit-doc` | 重新生成 `TAGS.md` 规则文档（改规则时才需要） | 0 |
 | `python .dsh/scripts/tag_audit.py` | 全库 tag 审计 | 非 0 = 有未登记 tag |
 | `python .dsh/scripts/tag_apply.py [--apply]` | 按 `map` 迁移历史 tag | 0 |
 | `python .dsh/scripts/gen_canvas.py [--check]` | 生成/校验概念地图画布 | `--check` 非 0 = 过期或缺失 |

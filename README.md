@@ -109,7 +109,7 @@ python .dsh/scripts/selfcheck.py
 ```
 你的知识库/
 ├── AGENTS.md          # AI 的架构规范（每次对话自动生效）
-├── TAGS.md            # tag 受控词表（脚本生成，勿手改）
+├── TAGS.md            # Tag 规范：只写规则不列词条（脚本生成，勿手改）
 ├── index.md           # 总目录
 ├── log.md             # 操作日志（append-only）
 ├── .dsh/
@@ -153,7 +153,8 @@ python .dsh/scripts/setup_wiki.py --venv       # 顺带建 venv 装 PyMuPDF
 python .dsh/scripts/selfcheck.py               # 体检：环境 / 依赖 / 骨架 / 子脚本
 
 python .dsh/scripts/tag_vocab.py --check       # 词表自洽性
-python .dsh/scripts/tag_vocab.py --emit-doc    # 刷新 TAGS.md
+python .dsh/scripts/tag_vocab.py --list        # 列出当前词表全部词条
+python .dsh/scripts/tag_vocab.py --emit-doc    # 重新生成 TAGS.md（改规则时才需要）
 python .dsh/scripts/tag_audit.py               # 全库 tag 审计（非 0 = 有未登记 tag）
 python .dsh/scripts/tag_apply.py [--apply]     # 按 map 批量迁移历史 tag
 python .dsh/scripts/tag_apply.py --rollback <备份.json>          # 精确回滚
@@ -189,7 +190,7 @@ python .dsh/scripts/crop_equations.py --manifest m.json --equations e.json --out
 | 周报的领域分区 | `domains` |
 | venv 位置 | `python.*` |
 
-**Tag 词表：`.dsh/tag-vocab.json`** —— 词表是**数据**，不是代码。七个分面（domain / task / modality / method / challenge / data / meta）的叶节点与中文释义都在这里；`map` 用来登记历史别名与近义词的归一化映射。改完按「`--check` → `--emit-doc` → `tag_apply.py` → `tag_audit.py`」四步走。
+**Tag 词表：`.dsh/tag-vocab.json`** —— 词表是**数据**，不是代码。七个分面（domain / task / modality / method / challenge / data / meta）的叶节点与中文释义都在这里；`map` 用来登记历史别名与近义词的归一化映射。改完按「`--check` → `tag_apply.py` → `tag_audit.py`」三步走——`TAGS.md` 只写规则不列词条，**加词条不需要刷新它**。
 
 **库根自动探测**：如果你把知识库放在一个更大的 Obsidian 库里（比如 `my-vault/notes/`），`vault_prefix` 保持 `"auto"` 即可 —— 脚本会向上找 `.obsidian/` 并自动算出 `notes/` 这个前缀，写进 `.canvas` 的路径永远是对的。也可以显式写死。
 
@@ -287,7 +288,7 @@ python -m venv .dsh/venv
 - [`docs/INSTALL.md`](docs/INSTALL.md) —— 安装细节、目录布局、故障排查
 - [`docs/CUSTOMIZE.md`](docs/CUSTOMIZE.md) —— 改目录名 / 换词表 / 换领域 / 加技能
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) —— 数据流与脚本地图
-- [`TAGS.md`](TAGS.md) —— 内置 tag 受控词表（随包附带的种子词表）
+- [`TAGS.md`](TAGS.md) —— Tag 规范：七个分面、硬规则、新增流程（**只写规则，不列词条**；词条在 `.dsh/tag-vocab.json`）
 
 ---
 

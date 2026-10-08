@@ -11,7 +11,8 @@
 用法：
     python .dsh/scripts/tag_vocab.py                    # 打印词表统计与自检结果
     python .dsh/scripts/tag_vocab.py --check            # 校验词表自洽（退出码非 0 即失败）
-    python .dsh/scripts/tag_vocab.py --emit-doc         # 生成/刷新工作区根目录的 TAGS.md
+    python .dsh/scripts/tag_vocab.py --list             # 列出当前词表全部词条（按分面分组）
+    python .dsh/scripts/tag_vocab.py --emit-doc         # 生成/刷新 TAGS.md（规则文档，只写规则不列词条）
     python .dsh/scripts/tag_vocab.py --vocab <path>     # 用别的词表文件（也可用环境变量 WIKI_VOCAB）
 
 规范要点（与 AGENTS.md「Tag 规范」一致）：
@@ -309,18 +310,35 @@ def _desc_tail(desc: str) -> str:
 
 
 def emit_doc() -> str:
-    """生成 TAGS.md 的正文。"""
+    """生成 TAGS.md 的正文 —— **只写规则，不列词条**。
+
+    词表本体是数据（`.dsh/tag-vocab.json`），它因研究领域而异、随用随改。
+    把具体词条抄进规范文档有两个坏处：
+
+    1. **规范与数据耦合**：换一套领域词表就得重写文档，改了词忘了改文档还会互相矛盾；
+    2. **像自带推荐词表**：读者会把那些词当成"这个工具建议我用的 tag"，
+       而实际上它们只是某个初始词表的快照，跟使用者的领域未必相关。
+
+    所以这里只固化**不随项目变化的规则**。要查当前允许哪些词，用
+    `tag_vocab.py --list`；文档与数据各归其位。
+    """
     L: list = []
     hints = facet_hints()
     wiki_rel = cfg("dirs", "wiki", default="wiki")
-    L.append("# Tag 受控词表（Controlled Vocabulary）")
+    L.append("# Tag 规范（受控词表规则）")
     L.append("")
     L.append("> 本文件由 `.dsh/scripts/tag_vocab.py --emit-doc` 自动生成，**请勿手工编辑**。")
-    L.append("> 新增/修改 tag 请改 `.dsh/tag-vocab.json` 的 `canonical` 与 `map`，再重新生成。")
+    L.append(">")
+    L.append("> **这里只写规则，不列词条。** 词表本体是数据，在你自己的 `.dsh/tag-vocab.json` 里 ——")
+    L.append("> 它随你的研究领域增删，本文件不随它变化（改了词表**不需要**重新生成本文件）。")
+    L.append(">")
+    L.append("> 想知道当前允许哪些词：`python .dsh/scripts/tag_vocab.py --list`")
     L.append("")
     L.append("## 一、硬规则")
     L.append("")
-    L.append(f"1. **只允许本文件列出的 tag 出现在 `{wiki_rel}/**/*.md` 的 frontmatter `tags:` 字段中。**")
+    L.append(f"1. **只允许 `.dsh/tag-vocab.json` 的 `canonical` 段登记过的 tag** 出现在 "
+             f"`{wiki_rel}/**/*.md` 的 frontmatter `tags:` 字段中。")
+    L.append("   封闭词表是防止标签膨胀的唯一机制：没有它，tag 数量会随页数线性增长，最终失去检索价值。")
     L.append("2. 角色 tag `母概念` / `子概念` **不带前缀，且必须是 `tags` 的第一项**——")
     L.append("   画布生成脚本与 lint 的分层检查依赖其字面值与位置。")
     L.append("3. 主题 tag 一律形如 `分面/叶节点`：分面只有 7 个，叶节点为小写 kebab-case 英文。")
@@ -335,68 +353,66 @@ def emit_doc() -> str:
     L.append("8. **一个 tag 只表达一个维度**：`image-classification` 这类复合词必须拆成")
     L.append("   `modality/image` + `task/classification` 两个 tag，**不得新造复合词**。")
     L.append("")
-    L.append("## 一点五、工具链")
+    L.append("## 二、七个分面")
     L.append("")
-    L.append("| 命令 | 作用 | 退出码 |")
+    L.append("**分面是固定的，叶节点是你的。** 给一页选 tag，就是逐分面问一遍自己：")
+    L.append("")
+    L.append("| 分面 | 收什么 | 判断问题 |")
     L.append("|---|---|---|")
-    L.append("| `python .dsh/scripts/tag_vocab.py --check` | 词表自洽性校验（映射指向的词条是否存在、有无死词条） | 非 0 = 失败 |")
-    L.append("| `python .dsh/scripts/tag_audit.py` | 全库 tag 审计：未登记 tag、超限、频次分布 | 非 0 = 有未登记或硬违规 |")
-    L.append("| `python .dsh/scripts/tag_audit.py --unregistered` | 只列出未登记的 tag | 同上 |")
-    L.append("| `python .dsh/scripts/tag_apply.py` | 按 `map` 迁移历史 tag（**预演**，不写盘） | — |")
-    L.append("| `python .dsh/scripts/tag_apply.py --apply` | 实际改写并生成备份到 `.dsh/tmp/tags-backup-*.json` | — |")
-    L.append("| `python .dsh/scripts/tag_apply.py --rollback <备份>` | 从备份精确还原 tags | — |")
-    L.append("| `python .dsh/scripts/tag_verify_migration.py` | 独立验证：备份 → 重新推导 → 与磁盘逐页比对 | 非 0 = 不一致 |")
-    L.append("| `python .dsh/scripts/tag_vocab.py --emit-doc` | 用词表刷新本文件 | — |")
-    L.append("")
-    L.append("## 二、分面总览")
-    L.append("")
-    L.append("| 分面 | 词条数 | 收什么 | 判断问题 |")
-    L.append("|---|---|---|---|")
     for f, desc in FACETS:
-        L.append(f"| `{f}/` | {len(CANONICAL[f])} | {_desc_tail(desc)} | {hints.get(f, '')} |")
-    L.append(f"| *角色* | {len(ROLE_TAGS)} | 母页/子页层级标记 | 该页是否为某一族的母页或子页？ |")
+        L.append(f"| `{f}/` | {_desc_tail(desc)} | {hints.get(f, '')} |")
     L.append("")
-    L.append("## 三、词表")
+    L.append("> 角色 tag `母概念` / `子概念` 不走分面，用于标记概念层级（见硬规则 2）。")
+    L.append(">")
+    L.append("> **不设第八个分面**：分面是结构，不是词表。一个词若归不进上面任何一面，")
+    L.append("> 说明它不该是 tag —— 写进正文即可。")
     L.append("")
-    for f, desc in FACETS:
-        L.append(f"### `{f}/` — {_desc_tail(desc)}")
-        L.append("")
-        L.append("| tag | 说明 |")
-        L.append("|---|---|")
-        for leaf in sorted(CANONICAL[f]):
-            L.append(f"| `{f}/{leaf}` | {CANONICAL[f][leaf]} |")
-        L.append("")
-    L.append("### 角色 tag（无前缀，位首）")
+    L.append("## 三、查看与维护词表")
     L.append("")
-    L.append("| tag | 说明 |")
+    L.append("| 命令 | 作用 |")
     L.append("|---|---|")
-    L.append("| `母概念` | 母页：统领 ≥3 个概念页，正文含 `## 子概念` 段 |")
-    L.append("| `子概念` | 子页：正文首行含 `> **母概念**：[[母页]]` |")
+    L.append("| `python .dsh/scripts/tag_vocab.py --list` | **列出当前词表全部词条**（按分面分组） |")
+    L.append("| `python .dsh/scripts/tag_vocab.py --check` | 自洽性校验（`map` 指向的 tag 是否存在、有无死词条、分面是否合法） |")
+    L.append("| `python .dsh/scripts/tag_vocab.py --emit-doc` | 重新生成本文件（**只有改规则时才需要**） |")
+    L.append("| `python .dsh/scripts/tag_audit.py` | 全库审计：未登记 tag、超限、频次分布 |")
+    L.append("| `python .dsh/scripts/tag_audit.py --unregistered` | 只列出未登记的 tag |")
+    L.append("| `python .dsh/scripts/tag_apply.py` | 按 `map` 迁移历史 tag（**预演**，不写盘） |")
+    L.append("| `python .dsh/scripts/tag_apply.py --apply` | 实际改写并生成备份到 `.dsh/tmp/tags-backup-*.json` |")
+    L.append("| `python .dsh/scripts/tag_apply.py --rollback <备份>` | 从备份精确还原 tags |")
+    L.append("| `python .dsh/scripts/tag_verify_migration.py` | 独立验证：备份 → 重新推导 → 与磁盘逐页比对 |")
+    L.append("")
+    L.append("> 权威来源是 `<工作区根>/.dsh/tag-vocab.json`。想换一整套领域词表，")
+    # 这里刻意用行内代码而不是 markdown 链接：TAGS.md 会跟着安装进用户的知识库，
+    # 而 `docs/` 不在安装范围内（只复制 .dsh/、AGENTS.md、templates/），
+    # 写成链接就会在用户库里变成悬空链接。用代码路径两种场景都成立。
+    L.append("> 见仓库里的 `docs/CUSTOMIZE.md` → 「换 tag 词表」一节。")
     L.append("")
     L.append("## 四、新增 tag 的流程")
     L.append("")
     L.append("1. **先想清楚它属于哪个分面**；若答不出分面，说明它不该是 tag（写进正文即可）。")
-    L.append("2. **先查是否已有近义词条**：检索本文件与 `.dsh/tag-vocab.json` 的 `map`。")
+    L.append("2. **先查是否已有近义词条**：跑 `tag_vocab.py --list`，并检索 `.dsh/tag-vocab.json` 的 `map`。")
     L.append("   同义、单复数、大小写、连字符差异一律合并到已有词条。")
     L.append("3. **门槛**：该词需在 **≥3 个页面**上有实际检索价值，否则合并到最接近的现有词条。")
     L.append("4. 通过后：在 `.dsh/tag-vocab.json` 的 `canonical` 增加 `叶节点: 中文释义`，")
     L.append("   并在 `map` 登记来源词（含被合并的近义词；一条来源可映射到多个规范 tag）。")
-    L.append("5. 运行 `python .dsh/scripts/tag_vocab.py --check` 确认自洽，")
-    L.append("   再运行 `python .dsh/scripts/tag_vocab.py --emit-doc` 刷新本文件。")
+    L.append("5. 运行 `python .dsh/scripts/tag_vocab.py --check` 确认自洽。")
     L.append("6. 运行 `python .dsh/scripts/tag_audit.py` 确认没有未登记 tag 出现在 frontmatter。")
     L.append("")
     L.append("## 五、常见误用（反面清单）")
     L.append("")
+    L.append("> 下表用**示例**说明错误模式，帮助你识别同类问题；示例里的词条名不代表你的词表内容，")
+    L.append("> 具体以 `.dsh/tag-vocab.json` 为准。")
+    L.append("")
     L.append("| ✗ 错误写法 | ✓ 正确写法 | 理由 |")
     L.append("|---|---|---|")
     for bad, good, why in [
-        ("`llm`, `LLM`, `large-language-model` 并存", "`domain/llm`", "大小写与同义词必须归一"),
-        ("`dl` / `deep-learning` 混用", "`method/deep-learning`", "缩写与全称统一到同一词条"),
-        ("`image-classification`", "`modality/image` + `task/classification`", "拆成模态×任务两个分面"),
-        ("`2024`", "（删除）", "年份已在 `year`/文件名中"),
-        ("`survey` 用于非综述页", "`meta/survey`", "只在该页确为综述/分类体系时使用"),
-        ("`GPT` 这类模型专名", "`method/foundation-model`", "模型专名不设 tag，正文检索即可"),
-        ("`ablation`", "`meta/analysis`", "实验方法归入 meta 分面"),
+        ("同义/大小写并存：`dl`、`deep-learning`、`DL`", "归一到单一词条（如 `method/deep-learning`）", "同义词条必须合并，否则检索被稀释"),
+        ("复合词：`image-classification`", "`modality/image` + `task/classification`", "一个 tag 只表达一个维度"),
+        ("年份：`2024`", "（删除）", "年份已在 frontmatter 的 `year` / 文件名中"),
+        ("模型或数据集专名：`GPT`、`ImageNet`", "`method/foundation-model`、`data/dataset`", "专名靠正文检索，不占 tag 名额"),
+        ("实验手段：`ablation`", "`meta/analysis`", "实验方法归入 meta 分面"),
+        ("把非综述页标成 `meta/survey`", "改挂 `meta/analysis` 或对应 `task/`", "tag 要描述页面实际是什么"),
+        ("一页挂 9 个以上主题 tag", "压到 8 个以内（推荐 3–5）", "挂满等于没挂，区分度归零"),
     ]:
         L.append(f"| {bad} | {good} | {why} |")
     L.append("")
@@ -412,7 +428,9 @@ def main(argv=None) -> int:
         epilog="示例: python .dsh/scripts/tag_vocab.py --check",
     )
     ap.add_argument("--check", action="store_true", help="校验词表自洽；有问题时退出码 1")
-    ap.add_argument("--emit-doc", action="store_true", help="用词表刷新 TAGS.md")
+    ap.add_argument("--list", action="store_true",
+                    help="列出当前词表全部词条（按分面分组，带中文释义）")
+    ap.add_argument("--emit-doc", action="store_true", help="重新生成 TAGS.md（只有改规则时才需要）")
     ap.add_argument("--doc", default=None, help="TAGS.md 输出路径（默认取配置项 files.tags_doc）")
     ap.add_argument("--vocab", default=None, help="词表文件路径（默认取配置项 files.vocab）")
     ap.add_argument("--quiet", action="store_true", help="只输出一行结论")
@@ -427,6 +445,23 @@ def main(argv=None) -> int:
         return 1
 
     vocab_path = resolve_vocab_path(args.vocab)
+
+    # `--list`：把词表本体（数据）与规范文档（TAGS.md）分开之后，
+    # 这就是"当前到底允许哪些词"的查询入口。
+    if args.list:
+        n_all = len(all_canonical_tags())
+        print(f"# 词表：{vocab_path}")
+        print(f"# 分面 {len(FACET_ORDER)} ｜ 规范 tag {n_all} ｜ 含角色 tag {n_all + len(ROLE_TAGS)}"
+              f" ｜ 已登记历史映射 {len(MAP)}")
+        for f, desc in FACETS:
+            print(f"\n[{f}/]  {_desc_tail(desc)}")
+            for leaf in sorted(CANONICAL[f]):
+                print(f"  {f}/{leaf:<28} {CANONICAL[f][leaf]}")
+        print("\n[角色 tag]  不带前缀，且必须是 tags 的第一项")
+        for r in ROLE_TAGS:
+            print(f"  {r}")
+        return 0
+
     errs = check()
     n_canon = len(all_canonical_tags())
 
