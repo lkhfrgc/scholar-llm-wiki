@@ -230,6 +230,9 @@ python .dsh/scripts/wiki_env.py --json      # 完整配置 + 解析结果
      登记「来源词 → 规范词」，然后 `tag_apply.py`（先预演，再 `--apply`）。
    - 该 tag 确有独立检索价值（**≥3 个页面**用得上，且能归入某个分面）→ 在 `canonical`
      增加词条 + `map` 登记来源（`TAGS.md` 只写规则、不列词条，无需刷新）。
+     **⚡ 冷启动例外**：若 `canonical` 为空（出厂状态）或该分面为空，**免于 3 页门槛**——
+     首次摄入本来就不可能攒够页面。此时应把这些 tag 报成「**待登记**」而非「违规」，
+     并提示登记进词表即可，**不要建议删除页面上的 tag**。
    - 两者都不成立 → 删掉这个 tag（信息写进正文即可）。
 5. 收尾：修改词表后按 AGENTS.md「Tag 规范 → 改动流程」五步执行
    （改 `canonical` / `map` → `tag_vocab.py --check` → `--emit-doc` → `tag_apply.py --apply` → `tag_audit.py`），

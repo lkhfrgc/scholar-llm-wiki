@@ -13,7 +13,7 @@
 
 > 📖 **新手请直接看 [用户手册 `docs/MANUAL.md`](docs/MANUAL.md)** —— 从「这东西是干什么的」讲到「出问题怎么修」。
 >
-> 🧠 **方法论出处**：本工具包的基础方法论来自 **Andrej Karpathy 的 [`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)**——
+> 🧠 **方法论出处**：本工具包的基础方法论来自 **Andrej Karpathy 的 llm wiki** ——
 > 「让 LLM 增量维护一个持久 wiki」这个想法是他的；本仓库做的是把它工程化、脚本化、做成可安装的工具。详见[下文](#方法论出处)。
 
 它不是「笔记模板」，而是一套**可执行的知识库契约**：
@@ -190,7 +190,13 @@ python .dsh/scripts/crop_equations.py --manifest m.json --equations e.json --out
 | 周报的领域分区 | `domains` |
 | venv 位置 | `python.*` |
 
-**Tag 词表：`.dsh/tag-vocab.json`** —— 词表是**数据**，不是代码。七个分面（domain / task / modality / method / challenge / data / meta）的叶节点与中文释义都在这里；`map` 用来登记历史别名与近义词的归一化映射。改完按「`--check` → `tag_apply.py` → `tag_audit.py`」三步走——`TAGS.md` 只写规则不列词条，**加词条不需要刷新它**。
+**Tag 词表：`.dsh/tag-vocab.json`** —— 词表是**数据**，不是代码。
+
+**出厂时它是空的**：只给七个分面（domain / task / modality / method / challenge / data / meta）这个骨架，**不给任何具体词条**。理由：tag 是最贴着研究领域的东西，预设一套词表既会误导别的领域的使用者，也会让人在无意识间接受一套不属于自己的分类。
+
+词表随你的第一次 `/ingest` 长出来——**冷启动阶段新增 tag 免于「≥3 个页面」门槛**，但必须在同一次摄入收尾前登记进 `canonical`（`叶节点: 中文释义`）与 `map`（来源词），让 `tag_audit.py` 回到退出码 0；某个分面一旦有条目就恢复常规门槛。
+
+查看当前词表：`python .dsh/scripts/tag_vocab.py --list`。改完按「`--check` → `tag_apply.py` → `tag_audit.py`」三步走——`TAGS.md` 只写规则不列词条，**加词条不需要刷新它**。
 
 **库根自动探测**：如果你把知识库放在一个更大的 Obsidian 库里（比如 `my-vault/notes/`），`vault_prefix` 保持 `"auto"` 即可 —— 脚本会向上找 `.obsidian/` 并自动算出 `notes/` 这个前缀，写进 `.canvas` 的路径永远是对的。也可以显式写死。
 

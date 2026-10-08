@@ -136,15 +136,30 @@ def main(argv=None) -> int:
     L: list = []
     L.append(f"# Tag 审计报告  ({n_files} 个页面)")
     L.append("")
+    cold = V.is_cold_start()
     L.append(f"- 不同 tag 总数: **{len(tag_files)}**（词表容量 {len(known)}）")
-    L.append(f"- 未登记 tag: **{len(unregistered)}**")
+    L.append("- 词表状态: " + ("**冷启动** —— `canonical` 为空，词表尚未建立" if cold
+                              else f"已建立（{len(known)} 条规范 tag）"))
+    L.append(f"- 未登记 tag: **{len(unregistered)}**"
+             + ("（冷启动阶段，属预期）" if cold and unregistered else ""))
     L.append(f"- type 分布: " + ", ".join(f"{k} {v}" for k, v in type_counter.most_common()))
     L.append(f"- frontmatter 缺失: {len(no_fm)}" + (f"  {no_fm}" if no_fm else ""))
     L.append(f"- 块序列写法（建议统一为内联）: {len(block_style)}")
     dist = Counter(len([t for t in v if t not in V.ROLE_TAGS]) for v in file_tags.values())
     L.append("- 主题 tag 数分布: " + ", ".join(f"{k}个×{v}页" for k, v in sorted(dist.items())))
     L.append("")
-    if unregistered:
+    if unregistered and cold:
+        L.append(f"## ⚠ 待登记进词表 ({len(unregistered)}) —— 冷启动阶段，这不是错误")
+        L.append("")
+        L.append("出厂词表是空的，所以页面上的每个 tag 都会出现在这里。**冷启动阶段免于")
+        L.append("「≥3 个页面」门槛**，但必须在本次 ingest 收尾前把它们登记进")
+        L.append("`.dsh/tag-vocab.json`：`canonical` 加 `叶节点: 中文释义`，`map` 里登记来源词。")
+        L.append("登记完重跑本命令，退出码就回到 0。详见 `TAGS.md` 的「冷启动」一节。")
+        L.append("")
+        for t, v in sorted(unregistered.items(), key=lambda kv: (-len(kv[1]), kv[0])):
+            L.append(f"- `{t}` × {len(v)}  — 例: {v[0]}")
+        L.append("")
+    elif unregistered:
         L.append(f"## ✗ 未登记 tag ({len(unregistered)})")
         L.append("")
         for t, v in sorted(unregistered.items(), key=lambda kv: (-len(kv[1]), kv[0])):
@@ -180,7 +195,8 @@ def main(argv=None) -> int:
 
     if args.quiet:
         ok = not unregistered and not hard
-        print(f"审计{'通过 ✓' if ok else '未通过'}  页面 {n_files}  未登记 {len(unregistered)}  硬性违规 {len(hard)}")
+        print(f"审计{'通过 ✓' if ok else '未通过'}  页面 {n_files}  未登记 {len(unregistered)}   "
+              f"硬性违规 {len(hard)}   词表{'冷启动' if cold else '已建立'}")
     else:
         print(text)
     if args.report:
@@ -194,6 +210,7 @@ def main(argv=None) -> int:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps({
             "n_files": n_files,
+            "cold_start": cold,
             "tag_counts": {t: len(v) for t, v in tag_files.items()},
             "tag_files": dict(tag_files),
             "file_tags": file_tags,
@@ -205,7 +222,10 @@ def main(argv=None) -> int:
             print(f"[json] -> {args.json}")
     ok = not unregistered and not hard
     if not args.quiet:
-        print("\n" + ("审计通过 ✓" if ok else f"审计未通过：未登记 {len(unregistered)}，硬性违规 {len(hard)}"))
+        msg = "审计通过 ✓" if ok else f"审计未通过：未登记 {len(unregistered)}，硬性违规 {len(hard)}"
+        if not ok and cold and not hard:
+            msg += "　（冷启动：把上面这些词登记进 .dsh/tag-vocab.json 即可，不用删 tag）"
+        print("\n" + msg)
     return 0 if ok else 1
 
 

@@ -81,15 +81,27 @@ my-vault/               ← .obsidian/ 在这里（库根）
 - **`page_overrides`** 是逐页修剪表：当机械映射结果超过 8 个 tag 的硬上限时，
   在这里显式声明该页要剔除哪些。
 
-### 换成一个完全不同领域的词表
+### 从空骨架建立（或整份替换）你的词表
+
+出厂词表是**空的**——只有七个分面，没有任何具体词条。这是有意的：tag 因研究领域而异，
+预设一套只会误导。
+
+**正常情况下你不需要手工建**：直接跑 `/ingest`，agent 会在收尾时把用到的词登记进来。
+冷启动阶段免于「≥3 个页面」门槛（第一轮摄入不可能攒够页面），但必须在同一次摄入收尾前登记完，
+让 `tag_audit.py` 回到退出码 0。某个分面一旦有条目，该分面就恢复常规门槛。
+
+想手工建、或整份换成另一个领域的词表：
 
 1. 备份：`cp .dsh/tag-vocab.json .dsh/tag-vocab.backup.json`；
-2. 只改 `canonical` 的叶节点与 `map`（保持 7 个分面名不变）；
+2. 只改 `canonical` 的叶节点与 `map`（保持 7 个分面名**及其顺序**不变）；
 3. `python .dsh/scripts/tag_vocab.py --check` —— 必须 0。
    它会报「规范 tag 无任何映射来源（死词条）」，意思是每个叶节点至少要在 `map` 里
    被某个来源词指到，否则审计时统计不到它；
-4. （仅当改了**分面或规则**）`python .dsh/scripts/tag_vocab.py --emit-doc` 重新生成 `TAGS.md`；
+4. 看看结果：`python .dsh/scripts/tag_vocab.py --list`；
 5. `python .dsh/scripts/tag_audit.py` 复核。
+
+> 改词条**不需要**重新生成 `TAGS.md`——它只写规则、不列词条。
+> 只有改了分面的 `desc` / `hint` 这类规则文本，才需要 `--emit-doc`。
 
 ### 页面上已经写了一堆旧 tag
 

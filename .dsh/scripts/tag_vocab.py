@@ -215,6 +215,15 @@ def all_canonical_tags() -> list:
     return out
 
 
+def is_cold_start() -> bool:
+    """词表是否处于**冷启动**状态：`canonical` 一条词都没有。
+
+    出厂即冷启动。此阶段新增 tag 免于「≥3 个页面」门槛——第一轮摄入时
+    不可能已经攒够 3 个页面。详见 TAGS.md 的「冷启动」一节。
+    """
+    return not all_canonical_tags()
+
+
 def canonical_by_name() -> dict:
     """规范 tag → 中文释义。"""
     out = {t: "角色标签（层级）" for t in ROLE_TAGS}
@@ -353,7 +362,27 @@ def emit_doc() -> str:
     L.append("8. **一个 tag 只表达一个维度**：`image-classification` 这类复合词必须拆成")
     L.append("   `modality/image` + `task/classification` 两个 tag，**不得新造复合词**。")
     L.append("")
-    L.append("## 二、七个分面")
+    L.append("## 二、冷启动：第一次使用时看这里")
+    L.append("")
+    if is_cold_start():
+        L.append("**当前词表是空的**（`canonical` 里一条词都没有）—— 这是出厂状态，不是出错。")
+    else:
+        L.append("词表里已经有词条了。（出厂时是空的，现在这份是你自己建立的。）")
+    L.append("")
+    L.append("出厂只给「七个分面」这个骨架，**不给任何具体词条**。理由：tag 是最贴着研究领域的东西，")
+    L.append("预设一套词表既会误导别的领域的使用者，也会让人在无意识间接受一套不属于自己的分类。")
+    L.append("")
+    L.append("**冷启动阶段的放宽规则**（仅当词表为空、或该分面为空时适用）：")
+    L.append("")
+    L.append("- **取消「≥3 个页面」门槛**：第一轮摄入时不可能已经攒够 3 个页面，所以直接取词即可，")
+    L.append("  只要你能说清它属于哪个分面、且确实有检索价值；")
+    L.append("- **但纪律不放松**：取用的词必须在**同一次 ingest 的收尾**登记进 `.dsh/tag-vocab.json` 的")
+    L.append("  `canonical`（附中文释义）与 `map`（登记来源词），让 `tag_audit.py` 的退出码回到 0。")
+    L.append("  是「先立规矩再用」，不是「先用乱再补票」。")
+    L.append("")
+    L.append("某个分面一旦开始有条目，该分面的新词就回到常规门槛（见第五节第 3 条）。")
+    L.append("")
+    L.append("## 三、七个分面")
     L.append("")
     L.append("**分面是固定的，叶节点是你的。** 给一页选 tag，就是逐分面问一遍自己：")
     L.append("")
@@ -367,7 +396,7 @@ def emit_doc() -> str:
     L.append("> **不设第八个分面**：分面是结构，不是词表。一个词若归不进上面任何一面，")
     L.append("> 说明它不该是 tag —— 写进正文即可。")
     L.append("")
-    L.append("## 三、查看与维护词表")
+    L.append("## 四、查看与维护词表")
     L.append("")
     L.append("| 命令 | 作用 |")
     L.append("|---|---|")
@@ -387,18 +416,20 @@ def emit_doc() -> str:
     # 写成链接就会在用户库里变成悬空链接。用代码路径两种场景都成立。
     L.append("> 见仓库里的 `docs/CUSTOMIZE.md` → 「换 tag 词表」一节。")
     L.append("")
-    L.append("## 四、新增 tag 的流程")
+    L.append("## 五、新增 tag 的流程")
     L.append("")
     L.append("1. **先想清楚它属于哪个分面**；若答不出分面，说明它不该是 tag（写进正文即可）。")
     L.append("2. **先查是否已有近义词条**：跑 `tag_vocab.py --list`，并检索 `.dsh/tag-vocab.json` 的 `map`。")
     L.append("   同义、单复数、大小写、连字符差异一律合并到已有词条。")
     L.append("3. **门槛**：该词需在 **≥3 个页面**上有实际检索价值，否则合并到最接近的现有词条。")
+    L.append("   （**冷启动例外**：词表为空、或该分面为空时免此门槛——见第二节。"
+             "第一轮摄入不可能攒够 3 个页面。）")
     L.append("4. 通过后：在 `.dsh/tag-vocab.json` 的 `canonical` 增加 `叶节点: 中文释义`，")
     L.append("   并在 `map` 登记来源词（含被合并的近义词；一条来源可映射到多个规范 tag）。")
     L.append("5. 运行 `python .dsh/scripts/tag_vocab.py --check` 确认自洽。")
     L.append("6. 运行 `python .dsh/scripts/tag_audit.py` 确认没有未登记 tag 出现在 frontmatter。")
     L.append("")
-    L.append("## 五、常见误用（反面清单）")
+    L.append("## 六、常见误用（反面清单）")
     L.append("")
     L.append("> 下表用**示例**说明错误模式，帮助你识别同类问题；示例里的词条名不代表你的词表内容，")
     L.append("> 具体以 `.dsh/tag-vocab.json` 为准。")

@@ -148,7 +148,8 @@ tags: [domain/llm, task/reasoning, method/transformer]
   `gen_canvas.py` 与 lint 检查 7 依赖其字面值与位置，不得改名、不得加前缀。
 - **封闭词表**：只允许 `.dsh/tag-vocab.json` 的 `canonical` 里登记过的词条，**禁止临场造词**
   （查当前词条：`python .dsh/scripts/tag_vocab.py --list`）。未登记 tag 会被
-  `tag_audit.py` 判为违规并给出非 0 退出码。
+  `tag_audit.py` 判为违规并给出非 0 退出码 —— **冷启动阶段除外**，见下面的例外条款。
+  注意：**出厂时词表是空的**，只有七个分面，没有任何具体词条。
 - **数量**：每页主题 tag 1–8 个（推荐 3–5）；分面软上限
   domain 2 / task 4 / modality 4 / method 6 / challenge 4 / data 2 / meta 2。
 - **一个 tag 只表达一个维度**：`image-classification` 应拆成 `modality/image` + `task/classification`，
@@ -159,6 +160,11 @@ tags: [domain/llm, task/reasoning, method/transformer]
   顺序 = 角色 tag → 分面顺序（domain → task → modality → method → challenge → data → meta）→ 面内字母序。
 - **新增 tag 的门槛**：该词须在 **≥3 个页面**上有实际检索价值，且能回答"它属于哪个分面"
   （答不出分面 = 它不该是 tag，写进正文即可）。否则合并到最接近的现有词条。
+- **⚡ 冷启动例外（首次摄入必读）**：`canonical` 为空、或对应分面为空时，**取消 ≥3 页门槛**
+  ——第一轮摄入不可能已经攒够 3 个页面，直接取词即可，只要说得清它属于哪个分面。
+  但**纪律不放松**：必须在**同一次 ingest 的收尾**把这些词登记进 `canonical`
+  （`叶节点: 中文释义`）与 `map`（来源词），让 `tag_audit.py` 的退出码回到 0。
+  是「先立规矩再用」，不是「先用乱再补票」。某个分面一旦有条目，该分面即恢复常规门槛。
 - **改动流程**（缺一不可）：
   1. 在 `.dsh/tag-vocab.json` 的 `canonical` 加 `叶节点: 中文释义`，在 `map` 登记来源词
      （一条来源可映射到多个规范 tag，用于合并近义词、单复数、大小写差异）；
