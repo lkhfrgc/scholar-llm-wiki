@@ -16,6 +16,7 @@ r"""repo_lint —— 提交前的「泄露与格式」自检。
   8. Markdown 本地链接   相对链接必须指向真实存在的文件
      （外链、锚点、邮件地址跳过；围栏代码块里的示例链接不算）
   9. 许可证副本    `.dsh/LICENSE` 与根 `LICENSE` 必须逐字节一致
+ 10. 行尾         文本文件一律 LF（与 `.gitattributes` 一致；`.bat`/`.cmd`/`.ps1` 除外）
 
 命中行若带 `repo-lint:ignore` 标记则豁免（文档需要展示"路径的形状"时用）。
 
@@ -48,6 +49,8 @@ BINARY_EXT = {
     ".exe", ".dll", ".so", ".dylib", ".pyc", ".pyd", ".woff", ".woff2", ".ttf",
     ".mp3", ".mp4", ".wav", ".xlsx", ".docx", ".pptx", ".canvas",
 }
+# 仓库约定：文本文件一律 LF（见 .gitattributes）。按 .gitattributes 明确要求 CRLF 的例外放这里。
+CRLF_EXEMPT_EXT = {".bat", ".cmd", ".ps1"}
 
 PATTERNS: list[tuple[str, str, re.Pattern[str]]] = [
     ("drive-path", "盘符绝对路径", re.compile(r"\b[A-Za-z]:[\\/](?![/\\])")),
@@ -172,6 +175,15 @@ def main(argv: list[str] | None = None) -> int:
 
         if raw.startswith(b"\xef\xbb\xbf"):
             findings.append({"file": rel, "line": 1, "kind": "bom", "label": "UTF-8 BOM", "match": "\\ufeff"})
+
+        # 行尾守卫：生成器若用了 Path.write_text，在 Windows 上会写出 CRLF。
+        # 仓库自己靠 .gitattributes 在提交时纠正，但用户的知识库里没有那份配置，
+        # 同一个生成物就会在不同平台行尾不同 —— 属于"提交时被掩盖、发出去才暴露"的问题，所以在这里拦。
+        if b"\r\n" in raw and p.suffix.lower() not in CRLF_EXEMPT_EXT and p.name not in (".gitignore",):
+            n_crlf = raw.count(b"\r\n")
+            findings.append({"file": rel, "line": 0, "kind": "crlf",
+                             "label": "行尾是 CRLF（仓库约定 LF）",
+                             "match": f"{n_crlf} 处；生成器请用 open(..., newline='\\n') 写文件"})
 
         try:
             text = raw.decode("utf-8")

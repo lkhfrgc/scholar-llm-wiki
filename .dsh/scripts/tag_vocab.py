@@ -490,7 +490,11 @@ def main(argv=None) -> int:
     if args.emit_doc:
         out = Path(args.doc) if args.doc else (WS / cfg("files", "tags_doc", default="TAGS.md"))
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(emit_doc(), encoding="utf-8")
+        # 显式 LF：Path.write_text 在 Windows 上会把 \n 翻成 \r\n，导致同一个生成物
+        # 在不同平台上行尾不同。仓库自己靠 .gitattributes 在提交时纠正了，但用户的知识库
+        # 里没有那份配置——所以生成端就要写对。
+        with open(out, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(emit_doc())
         if not args.quiet:
             print(f"[doc] -> {out}")
 
