@@ -2,7 +2,7 @@
 
 > **文献进，知识出。** 面向**科研与文献整理**的知识库工具包：AI agent 把论文、书籍、课件、网页长文**编译**成结构化、高度互链的 Obsidian 知识库。
 >
-> ***Sources in, knowledge out.** A knowledge base toolkit for research and literature review. AI agents compile papers, books, course notes and articles into a structured, densely interlinked Obsidian wiki — not a one-off summary, but a persistent artifact that compounds with every source you add. Built on Andrej Karpathy's [llm-wiki.md](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) pattern, plus a controlled tag vocabulary, concept hierarchy with generated Canvas maps, an arXiv→LaTeX formula pipeline, and audits that speak through exit codes. Zero hardcoding. Docs are in Chinese.*
+> ***Sources in, knowledge out.** A knowledge base toolkit for research and literature review. AI agents compile papers, books, course notes and articles into a structured, densely interlinked Obsidian wiki — not a one-off summary, but a persistent artifact that compounds with every source you add. Built on Andrej Karpathy's [llm-wiki.md](https://gist.githubusercontent.com/karpathy/442a6bf555914893e9891c11519de94f/raw) pattern, plus a controlled tag vocabulary, concept hierarchy with generated Canvas maps, an arXiv→LaTeX formula pipeline, and audits that speak through exit codes. Zero hardcoding. Docs are in Chinese.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-%E2%89%A53.9-blue.svg)
@@ -239,7 +239,10 @@ python -m venv .dsh/venv
 
 ## 方法论出处
 
-本工具包的**基础方法论来自 Andrej Karpathy 的 [`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)**。
+本工具包的**基础方法论来自 Andrej Karpathy 的 [`llm-wiki.md`](https://gist.githubusercontent.com/karpathy/442a6bf555914893e9891c11519de94f/raw)**。
+
+> 💡 链接指向 GitHub 的 **raw 地址**（`gist.githubusercontent.com`），而不是 gist 页面。
+> 两者是同一份内容，但 raw 域名在更多网络环境下可访问——`gist.github.com` 在部分网络下打不开。
 
 那是一份 "idea file"——刻意写得抽象，只讲 pattern、不讲实现，作者本人的用法是
 「直接把它丢给你的 LLM agent，让 agent 和你一起把细节长出来」。**本仓库就是它的一个具体实例化**：
@@ -250,7 +253,7 @@ python -m venv .dsh/venv
 > | 名字 | 指什么 | 在哪 |
 > |---|---|---|
 > | **Scholar LLM Wiki** | 本工具包 / 这个仓库 | README、文档、`LICENSE` |
-> | **LLM Wiki** | Karpathy 的**方法论**名 | [`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)、`AGENTS.md` 的角色定义、本节的对照表 |
+> | **LLM Wiki** | Karpathy 的**方法论**名 | [`llm-wiki.md`](https://gist.githubusercontent.com/karpathy/442a6bf555914893e9891c11519de94f/raw)、`AGENTS.md` 的角色定义、本节的对照表 |
 > | `wiki_name` | **你自己**知识库的名字，显示在概念地图画布标题里 | `.dsh/wiki.config.json`，默认 `科研 Wiki` |
 >
 > 项目名里带 `LLM Wiki` 是**故意的**——它的意思就是「面向学术的 LLM Wiki」，

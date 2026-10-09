@@ -8,7 +8,7 @@
 （论文、书籍、课件、网页长文 → 结构化、高度互链的 Obsidian 知识库）。
 
 > 命名说明：项目名 **Scholar LLM Wiki** 指这个工具包；**LLM Wiki** 指 Andrej Karpathy
-> 那份方法论（[`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)），
+> 那份方法论（[`llm-wiki.md`](https://gist.githubusercontent.com/karpathy/442a6bf555914893e9891c11519de94f/raw)），
 > 两者不是一个东西，别混。用户自己知识库的名字由 `.dsh/wiki.config.json` 的 `wiki_name` 决定
 > （默认 `科研 Wiki`）。
 
@@ -55,7 +55,7 @@
 
 ### 方法论出处
 
-基础方法论来自 **Andrej Karpathy 的 [`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)**：
+基础方法论来自 **Andrej Karpathy 的 [`llm-wiki.md`](https://gist.githubusercontent.com/karpathy/442a6bf555914893e9891c11519de94f/raw)**：
 让 LLM 增量维护一个持久的、可复利增长的 wiki，而不是每次提问都从原始文档重新检索。
 
 具体对应关系（三层架构 → `raw/`/`wiki/`/`AGENTS.md`；Ingest/Query/Lint → 三个同名技能；

@@ -40,7 +40,7 @@
 ### 这套方法从哪来
 
 前面这句话不是本工具原创的。**基础方法论来自 Andrej Karpathy 的
-[`llm-wiki.md`](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)**——
+[`llm-wiki.md`](https://gist.githubusercontent.com/karpathy/442a6bf555914893e9891c11519de94f/raw)**——
 一份刻意写得抽象的 "idea file"，讲的是同一件事：
 
 > 不要每次提问都从原始文档里重新检索（那是 RAG 的做法，知识不会积累）。
