@@ -36,6 +36,18 @@
 - 文档：README / MANUAL / ARCHITECTURE / CUSTOMIZE / INSTALL / CONTRIBUTING 同步补齐
   （ARCHITECTURE 增加 team 子系统结构图，CUSTOMIZE 增加「换团队词表」一节）。
 
+### 修复
+
+- **CI 的 Python 3.9 作业失败**：`team_vocab.py --emit-doc` 与 `team_apply.py` 的写盘用了
+  `Path.write_text(..., newline="\n")` —— 该参数 3.10 才有，3.9 上直接 `TypeError`。
+  三个写入点全部改用仓库既有的 `open(..., newline="\n")` 写法
+  （与 `tag_vocab.py` / `gen_canvas.py` / `check_paper_template.py` 一致）。
+- `repo_lint.py` 新增**检查 11「Py3.9 兼容」**：用 AST 检测 3.10+ 才有的标准库调用
+  （`Path.write_text/read_text(newline=)`、`zip(strict=)`、`itertools.pairwise()`、
+  `int.bit_count()`、`dataclass(slots=True)`）。这类问题本地新版解释器静默通过、
+  只有 CI 才炸，所以在提交前就拦下；用 AST 而非正则判定，
+  脚本里解释这些 API 的文档串不会被自己误伤（带 BOM 的文件也不会因此跳过检查）。
+
 ## [1.0.0] — 2026-10-06
 
 首个公开发布版：从作者自用的知识库工作流中抽出的工具包，**面向科研与文献整理**

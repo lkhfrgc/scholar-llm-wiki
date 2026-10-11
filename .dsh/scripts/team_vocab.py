@@ -436,7 +436,10 @@ def _cmd_main(argv=None) -> int:
         text = emit_doc()
         if not text.endswith("\n"):
             text += "\n"
-        out.write_text(text, encoding="utf-8", newline="\n")   # 显式 LF，避免 Windows CRLF 混入
+        # 显式 LF：Path.write_text 在 Windows 上会把 \n 翻成 \r\n；而 newline= 参数在 3.9 不存在，
+        # 所以与 TAGS.md / 画布生成器一致，手写 open(..., newline="\n")。
+        with open(out, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(text)
         print(f"[完成] 已写出 {out}（规则文档；团队本体仍在 {resolve_vocab_path()}）")
         return 0
 

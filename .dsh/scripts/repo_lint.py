@@ -17,6 +17,8 @@ r"""repo_lint —— 提交前的「泄露与格式」自检。
      （外链、锚点、邮件地址跳过；围栏代码块里的示例链接不算）
   9. 许可证副本    `.dsh/LICENSE` 与根 `LICENSE` 必须逐字节一致
  10. 行尾         文本文件一律 LF（与 `.gitattributes` 一致；`.bat`/`.cmd`/`.ps1` 除外）
+ 11. Py3.9 兼容   3.10+ 才有的标准库 API（CI 在 3.9 与 3.12 上各跑一遍，
+                  `Path.write_text(newline=)` 这类本地新版静默通过、到 CI 才炸）
 
 命中行若带 `repo-lint:ignore` 标记则豁免（文档需要展示"路径的形状"时用）。
 
@@ -33,6 +35,7 @@ r"""repo_lint —— 提交前的「泄露与格式」自检。
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import py_compile
 import re
@@ -70,6 +73,53 @@ BENIGN_USERS = {
     "shared", "all users", "default", "administrator", "admin", "runner",
     "your_user", "youruser", "<user>", "$user", "%username%", "...",
 }
+
+# Python 3.9 兼容守卫：CI 在 3.9 与 3.12 上各跑一遍，而本地新版解释器会静默接受
+# 3.10+ 才有的标准库 API —— 这类问题只有到 CI 才暴露，所以在这里提前拦。
+# 用 AST 判定（而非正则），这样脚本里解释这些 API 的文档串不会被自己误伤。
+PY310_CALL_KWARGS: dict[tuple[str, str], str] = {
+    ("write_text", "newline"): "Path.write_text(newline=) 需要 3.10+；请改用 open(..., newline='\\n')",
+    ("read_text", "newline"): "Path.read_text(newline=) 需要 3.13+",
+    ("zip", "strict"): "zip(strict=) 需要 3.10+",
+    ("dataclass", "slots"): "dataclass(slots=True) 需要 3.10+",
+}
+PY310_CALL_NAMES: dict[str, str] = {
+    "pairwise": "itertools.pairwise() 需要 3.10+",
+    "bit_count": "int.bit_count() 需要 3.10+",
+}
+
+
+def _call_name(node: ast.AST):
+    """取调用名：`f(...)` → f；`a.b(...)` → b。"""
+    fn = getattr(node, "func", None)
+    if isinstance(fn, ast.Attribute):
+        return fn.attr
+    if isinstance(fn, ast.Name):
+        return fn.id
+    return None
+
+
+def check_py39(rel: str, text: str, findings: list[dict]) -> None:
+    """标记 3.10+ 才有的标准库调用（这些在 3.9 上会 TypeError/AttributeError）。"""
+    try:
+        # 带 BOM 的文件（BOM 本身已单独报错）不应因此跳过本检查
+        tree = ast.parse(text.lstrip("\ufeff"))
+    except SyntaxError:
+        return  # 语法本身就不合法时，交给上面的编译检查报错
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        name = _call_name(node)
+        if not name:
+            continue
+        kws = {k.arg for k in node.keywords if k.arg}
+        for (fname, kw), why in PY310_CALL_KWARGS.items():
+            if name == fname and kw in kws:
+                findings.append({"file": rel, "line": node.lineno, "kind": "py39",
+                                 "label": "Python 3.9 不兼容", "match": why})
+        if name in PY310_CALL_NAMES:
+            findings.append({"file": rel, "line": node.lineno, "kind": "py39",
+                             "label": "Python 3.9 不兼容", "match": PY310_CALL_NAMES[name]})
 
 # Markdown 本地链接：`[文字](target)`。外链、锚点、邮件地址不检查。
 MD_LINK_RE = re.compile(r"\[[^\]\n]*\]\(([^)\s]+)\)")
@@ -209,6 +259,9 @@ def main(argv: list[str] | None = None) -> int:
             except Exception as exc:  # PyCompileError / OSError / ValueError(null byte) …
                 findings.append({"file": rel, "line": 0, "kind": "python", "label": "Python 编译失败",
                                  "match": str(exc).splitlines()[0][:160]})
+
+            # 3.9 兼容：AST 检测 3.10+ 才有的调用形状
+            check_py39(rel, text, findings)
 
     # 许可证副本同步：`.dsh/LICENSE` 会随安装一起进到用户的知识库里，
     # 它必须与仓库根的 LICENSE 逐字节一致，否则就是"发出去的许可证和声明的不一样"。

@@ -97,7 +97,9 @@ def main() -> int:
         n = 0
         for name, text in (data.get("pages") or {}).items():
             if name in pages:
-                pages[name].write_text(text, encoding="utf-8", newline="\n")
+                # 统一 LF；不用 3.10+ 才有的 Path.write_text(newline=)（本仓库支持 3.9）
+                with open(pages[name], "w", encoding="utf-8", newline="\n") as fh:
+                    fh.write(text)
                 n += 1
         print(f"[还原] {n} 页已写回（备份：{args.rollback}）")
         return 0
@@ -150,7 +152,8 @@ def main() -> int:
               + ("，删除 affiliations" if had_aff else ""))
         backup["pages"][page] = text
         if args.apply:
-            path.write_text(new_text, encoding="utf-8", newline="\n")
+            with open(path, "w", encoding="utf-8", newline="\n") as fh:
+                fh.write(new_text)
 
     print(f"\n{'已写盘' if args.apply else '预演完成'}：{changed} 页需要改动，{len(mapping)} 页在映射中")
     if args.apply and changed:
