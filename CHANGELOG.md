@@ -2,6 +2,40 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [未发布]
+
+### 新增
+
+- **Team 子系统（论文来源团队）**：论文页 frontmatter 新增 `team` 字段（**列表**，多单位合作全记，
+  按署名上标顺序排列），回答"这篇论文来自哪个团队"。数据在 `.dsh/team-vocab.json`
+  （`teams`: 规范名 → `{base, type, note}`；`aliases`: 来源写法 → 规范名），引擎 `team_vocab.py`
+  （`--list` / `--check` / `--emit-doc` / `--resolve`）、`team_apply.py`
+  （映射 → 预演 → `--apply` → `--rollback`，写盘时顺手删除旧的 `affiliations` 字段）、
+  `team_audit.py`（缺 `team` / 未登记团队 / 残留 `affiliations` / 归一化重名 / 结构，退出码说话）。
+  **规范与数据分家**：`TEAMS.md` 只写规则、不列团队，由 `--emit-doc` 生成。
+- **两级粒度**：机构级 `University of X`（或企业名）与实验室/课题组级
+  `University of X (Key Laboratory of Y)` 共存 —— 实验室条目的 `base` 指向其上级机构，
+  `--check` 保证上级机构也被登记；这样既能按实验室精确定位，也能按机构聚合。
+- **团队词表出厂为空（冷启动）**：与 tag 一样是封闭词表，但团队是**事实字段**——
+  **没有「≥3 个页面」门槛**，唯一的纪律是「同一个团队只能有一个规范名」（靠 `aliases` 归并
+  `Meta AI` / `FAIR` / `Facebook AI Research` 这类写法）。首次摄入时由 agent 从论文**首页署名块**
+  （编号行，或 IEEE 格式的首页脚注）判定，并先登记再写页面。
+
+### 变更
+
+- `AGENTS.md`：新增「Team 规范」一节；目录树加入 `TEAMS.md`；内容分类表的论文页一行补 `team` 要求；
+  工具链速查加入 4 条团队命令。
+- `ingest` 技能：论文页模板加 `team:` 字段；步骤 3 前置「先定 team」8 步
+  （含 IEEE 脚注读法、别名查询、新团队登记流程、`待确认` 规则）。
+- `lint` 技能：**九项 → 十项检查**，新增「检查 10：Team 规范」；检查 1 要求论文页必须有 `team`。
+- `check_paper_template.py`：新增判定项 9「缺来源团队」。
+- `setup_wiki.py` / `selfcheck.py`：安装与体检纳入 `team-vocab.json` 与 `TEAMS.md`
+  （`selfcheck` 的子脚本自检加入 `team_vocab.py --check`）。
+- `.dsh/wiki.config.json`：新增 `files.teams_doc` / `files.team_vocab`。
+- CI：新增 `team_vocab.py --check` 步骤；安装后体检加入 `team_audit.py`。
+- 文档：README / MANUAL / ARCHITECTURE / CUSTOMIZE / INSTALL / CONTRIBUTING 同步补齐
+  （ARCHITECTURE 增加 team 子系统结构图，CUSTOMIZE 增加「换团队词表」一节）。
+
 ## [1.0.0] — 2026-10-06
 
 首个公开发布版：从作者自用的知识库工作流中抽出的工具包，**面向科研与文献整理**

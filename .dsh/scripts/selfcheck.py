@@ -170,7 +170,7 @@ def skeleton_targets() -> List[tuple]:
         p = archive_dir(kind)
         targets.append((_rel(p) + "/", p, True, True))
 
-    for key in ("index", "log", "tags_doc"):
+    for key in ("index", "log", "tags_doc", "teams_doc"):
         rel = cfg("files", key, default=None)
         if rel:
             p = Path(rel)
@@ -268,7 +268,7 @@ def pdf_capable_python() -> Optional[str]:
 # ---------------------------------------------------------------------------
 
 def check_subscripts() -> None:
-    for name in ("tag_vocab.py", "gen_canvas.py"):
+    for name in ("tag_vocab.py", "team_vocab.py", "gen_canvas.py"):
         path = script_path(name)
         if not path.exists():
             record(f"子脚本 {name} --check", SKIP, "脚本不存在（可能尚未提供）", required=False)

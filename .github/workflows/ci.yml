@@ -31,6 +31,9 @@ jobs:
       - name: tag_vocab --check — 词表自洽性
         run: python .dsh/scripts/tag_vocab.py --check
 
+      - name: team_vocab --check — 团队词表自洽性
+        run: python .dsh/scripts/team_vocab.py --check
+
       # 3) 在干净的临时目录里真的装一遍，验证「开箱即用」
       - name: 模拟安装（干净目录）
         run: |
@@ -49,6 +52,7 @@ jobs:
           python .dsh/scripts/selfcheck.py
           python .dsh/scripts/gen_canvas.py --check
           python .dsh/scripts/tag_audit.py
+          python .dsh/scripts/team_audit.py
           python .dsh/scripts/check_paper_template.py
 
       # 4) 幂等性：再跑一次 setup 不应报错，也不应覆盖已生成的内容

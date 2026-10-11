@@ -1,6 +1,6 @@
 ---
 name: lint
-description: 知识库全局健康度检查。扫描 wiki/ 目录，按 AGENTS.md 规范执行九项检查：索引一致性、死链与孤儿页面、文中提及但缺少页面的概念、过时论断、核心问题覆盖、空白领域建议、概念分层一致性、Canvas 同步、Tag 受控词表合规。支持 `/lint`、`/scan`、`/health` 触发。当用户说「检查知识库」「跑一下 lint」「wiki 健康状况怎么样」「帮我检查一下 wiki」时触发。默认仅读，修复需用户确认。
+description: 知识库全局健康度检查。扫描 wiki/ 目录，按 AGENTS.md 规范执行十项检查：索引一致性、死链与孤儿页面、文中提及但缺少页面的概念、过时论断、核心问题覆盖、空白领域建议、概念分层一致性、Canvas 同步、Tag 受控词表合规、Team 受控词表合规。支持 `/lint`、`/scan`、`/health` 触发。当用户说「检查知识库」「跑一下 lint」「wiki 健康状况怎么样」「帮我检查一下 wiki」时触发。默认仅读，修复需用户确认。
 user-invocable: true
 ---
 
@@ -23,7 +23,7 @@ python .dsh/scripts/wiki_env.py --json      # 完整配置 + 解析结果
 
 ## 核心目标
 
-将软件工程中的"静态分析"引入知识管理。定期运行此 skill，按照 AGENTS.md 定义的九项检查，找出知识库在长期演进中积累的问题：死链、孤岛、未同步索引、缺失页面、过时论断、研究空白，以及概念分层、Canvas 地图与 tag 词表的漂移。
+将软件工程中的"静态分析"引入知识管理。定期运行此 skill，按照 AGENTS.md 定义的十项检查，找出知识库在长期演进中积累的问题：死链、孤岛、未同步索引、缺失页面、过时论断、研究空白，以及概念分层、Canvas 地图、tag 词表与团队词表的漂移。
 
 ## 触发条件
 
@@ -43,7 +43,7 @@ python .dsh/scripts/wiki_env.py --json      # 完整配置 + 解析结果
 
 `raw/` 不参与 lint——它是不可变的原始资料层。
 
-## 巡检流水线（九项检查，与 AGENTS.md 对齐）
+## 巡检流水线（十项检查，与 AGENTS.md 对齐）
 
 ---
 
@@ -79,6 +79,7 @@ python .dsh/scripts/wiki_env.py --json      # 完整配置 + 解析结果
 
 1. 每个页面的 frontmatter 必须含 `title`、`type`、`created`、`updated`、`tags`；`sources` 除纯综述页外应存在
    - `tags` 的**取值**是否合法由**检查 9（Tag 规范）**负责，此处只看字段是否存在
+   - **论文页（`type: paper`）还必须含 `team` 字段**（来源团队）；其**取值**是否合法由**检查 10（Team 规范）**负责，此处只看字段是否存在
 2. `type` 必须与所在目录匹配：`papers/`→`paper`、`concepts/`→`concept`、`connections/`→`connection`、`questions/`→`question`、`syntheses/`→`synthesis`（目录↔type 的对应表以配置的 `wiki_types` 段为准）
 3. **每个页面必须有 `## 关联连接` 小节**——这是 AGENTS.md 的硬性要求。判定时注意三点：
    - 用**包含匹配**而非精确匹配：`## 五、关联连接` 这类带编号的标题算合规，`### 关联连接`（级别写成三级）算**违规但易修**，单独列为一类
@@ -240,6 +241,38 @@ python .dsh/scripts/wiki_env.py --json      # 完整配置 + 解析结果
 
 **输出**：红灯项「未登记 tag N 个 / 硬违规 N 个」；黄灯项「超软上限 N 处」；
 总览中追加「规范 tag 使用数 N / 词表容量（从 `.dsh/tag-vocab.json` 统计）」与 tag 数分布。
+
+---
+
+### 检查 10：Team 规范（论文来源团队）
+
+**目标**：保证每篇论文页的 `team` 字段都落在 `.dsh/team-vocab.json` 定义的团队词表内，
+且同一个团队只有一种规范写法（没有别名分叉）。
+
+**方法**（优先用脚本，不要靠肉眼）：
+1. 运行 `python .dsh/scripts/team_audit.py`，**退出码 0 = 合规**。它覆盖五条规则：
+   - **R1** 每个论文页必须有非空 `team`；
+   - **R2** 每个取值必须是词表规范名——写了别名会直接给出「应写规范名」；未登记则报违规；
+   - **R3** 不得保留旧的 `affiliations` 字段（已被 `team` 取代）；
+   - **R4** 归一化后同名的疑似重复（机构 ↔ 其实验室的父子关系属正常，不算重复）；
+   - **R5** frontmatter 结构：`team` 是合法单行内联列表、必需字段齐全、无孤立块序列。
+2. 脚本另给三类**提示**（不计入错误）：`team: ["待确认"]` 占位页、
+   词表为空却已有页面写了 team、词表中尚未被引用的团队。
+3. **⚡ 冷启动例外**：出厂时词表为空。此时页面上的团队名应报成「**待登记**」而非「违规」，
+   并提示登记进 `.dsh/team-vocab.json` 的 `teams` / `aliases` 即可（团队是事实字段，
+   **没有 tag 那样的页数门槛**），**不要建议删除页面上的 team**。
+4. **修复路径**：
+   - 写法差异（缩写 / 中英文 / `The`、`of` 之类）→ 用
+     `python .dsh/scripts/team_vocab.py --resolve "<写法>"` 查规范名；
+     改页面，或把该写法登记进 `aliases`；
+   - 新团队 → 按 AGENTS.md「Team 规范 → 改动流程」五步登记
+     （`teams` 补 `base` / `type` / `note` → `--check` → `--emit-doc` → `team_apply.py` → `team_audit.py`）；
+   - 团队与原文署名不符 → 回源 PDF 首页 / 脚注核对后再改，不要凭印象；
+   - `待确认` 页 → 双盲审稿或 PDF 缺失，在报告里单列，**不要臆造**。
+5. 收尾：确认 `team_vocab.py --check` 与 `team_audit.py` 均返回 0。
+
+**输出**：红灯项「缺 team N 页 / 未登记团队 N 个 / 残留 affiliations N 页」；
+黄灯项「`待确认` N 页」；总览中追加「团队词表容量 N / 被引用 N」。
 
 ---
 

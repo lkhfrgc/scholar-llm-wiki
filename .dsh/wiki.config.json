@@ -27,12 +27,14 @@
     "weekly": "周报"
   },
 
-  "$comment_files": "根目录下的四个受维护文件。vocab 是 tag 受控词表的数据文件（词表与引擎分离）。",
+  "$comment_files": "根目录下的受维护文件。vocab 是 tag 受控词表的数据文件，team_vocab 是论文团队受控词表的数据文件（都是词表与引擎分离）。",
   "files": {
     "index": "index.md",
     "log": "log.md",
     "tags_doc": "TAGS.md",
-    "vocab": ".dsh/tag-vocab.json"
+    "vocab": ".dsh/tag-vocab.json",
+    "teams_doc": "TEAMS.md",
+    "team_vocab": ".dsh/team-vocab.json"
   },
 
   "$comment_wiki_types": "wiki 子目录 → frontmatter 的 type 值。lint 的索引一致性检查与 ingest 的分类都依赖这张表；改目录名时同步改这里。",

@@ -15,7 +15,7 @@
 - [5. 日常使用：三个技能](#5-日常使用三个技能)
 - [6. 目录说明书](#6-目录说明书)
 - [7. 页面长什么样](#7-页面长什么样)
-- [8. Tag 系统（通俗版）](#8-tag-系统通俗版)
+- [8. Tag 与 Team 词表系统（通俗版）](#8-tag-与-team-词表系统通俗版)
 - [9. 概念分层与概念地图](#9-概念分层与概念地图)
 - [10. 配置速查](#10-配置速查)
 - [11. 命令行速查](#11-命令行速查)
@@ -103,7 +103,7 @@
 
 **场景 C：三个月后，知识库开始长歪。**
 页面改名了但链接没改，新页面忘了登记进目录，标签越打越随意。说 `/lint`，
-它会跑九项检查，给你一份红/黄/蓝三色的体检报告，告诉你哪里坏了、怎么修。
+它会跑十项检查，给你一份红/黄/蓝三色的体检报告，告诉你哪里坏了、怎么修。
 
 ---
 
@@ -154,11 +154,12 @@ python .dsh/scripts/selfcheck.py      # 体检
 ```bash
 python .dsh/scripts/wiki_env.py --paths     # 路径解析对不对
 python .dsh/scripts/selfcheck.py            # 必需项必须全 ✓（退出码 0）
-python .dsh/scripts/tag_vocab.py --check    # 词表自洽（退出码 0）
+python .dsh/scripts/tag_vocab.py --check    # tag 词表自洽（退出码 0）
+python .dsh/scripts/team_vocab.py --check   # 团队词表自洽（退出码 0）
 python .dsh/scripts/gen_canvas.py --check   # 画布状态（退出码 0）
 ```
 
-四个都是退出码 0，说明装好了。
+五个都是退出码 0，说明装好了。
 
 ### 在 Obsidian 里打开
 
@@ -170,7 +171,7 @@ python .dsh/scripts/gen_canvas.py --check   # 画布状态（退出码 0）
 
 ### 卸载
 
-删掉 `.dsh/`、`AGENTS.md`、`templates/`、`TAGS.md` 即可。
+删掉 `.dsh/`、`AGENTS.md`、`templates/`、`TAGS.md`、`TEAMS.md` 即可。
 `wiki/`、`raw/`、`index.md`、`log.md` 都是你自己的内容，与本工具无关。
 
 ---
@@ -313,7 +314,7 @@ raw/research/Attention-Is-All-You-Need.pdf
 
 **怎么触发**：`/lint`、`/scan`、「检查知识库」「跑一下 lint」「wiki 健康状况怎么样」。
 
-**九项检查（人话版）**：
+**十项检查（人话版）**：
 
 | # | 检查 | 它在找什么 |
 |---|---|---|
@@ -326,6 +327,7 @@ raw/research/Attention-Is-All-You-Need.pdf
 | 7 | 分层一致性 | 母页/子页的声明在三处（tag、正文、索引）对不对得上，有没有环 |
 | 8 | Canvas 同步 | 概念地图和当前结构是否一致（用结构指纹比对） |
 | 9 | Tag 合规 | 有没有页面用了词表外的标签 |
+| 10 | Team 合规 | 论文页有没有 `team`（来源团队）；团队名是否都在团队词表内、有没有写成别名，同一个团队有没有两种写法 |
 
 **报告怎么读**：
 
@@ -347,6 +349,7 @@ raw/research/Attention-Is-All-You-Need.pdf
 你的知识库/
 ├── AGENTS.md          ← AI 的工作规范（别删，每次对话都会读）
 ├── TAGS.md            ← Tag 规范：只写规则不列词条（脚本生成，别手改）
+├── TEAMS.md           ← 团队规范：只写规则不列团队（脚本生成，别手改）
 ├── index.md           ← 总目录（AI 维护，你可以看，但别跟它抢着改）
 ├── log.md             ← 操作日志（只追加，AI 维护）
 ├── .dsh/              ← 工具本体（配置 + 技能 + 脚本）
@@ -399,6 +402,7 @@ type: paper
 authors: [Vaswani, Shazeer, ...]
 year: 2017
 venue: NeurIPS
+team: ["Google Brain", "University of Toronto"]
 sources: ["raw/papers/attention.pdf"]
 tags: [domain/llm, task/generation, method/transformer, method/attention]
 ---
@@ -478,7 +482,7 @@ tags: [子概念, method/attention, method/transformer]
 
 ---
 
-## 8. Tag 系统（通俗版）
+## 8. Tag 与 Team 词表系统（通俗版）
 
 ### 为什么不能让 AI 自由打标签
 
@@ -488,6 +492,9 @@ tags: [子概念, method/attention, method/transformer]
 
 所以本工具用**封闭词表**：AI 只能从 `.dsh/tag-vocab.json` 里登记过的词条中挑，挑不到就得先申请新增。
 想看看当前允许哪些词：`python .dsh/scripts/tag_vocab.py --list`。
+
+论文页还有一个 `team` 字段（来源团队），走的是同一套"封闭词表 + 数据文件"思路，
+数据在 `.dsh/team-vocab.json`——详见本节末尾「Team：论文来源团队」。
 
 ### 七个分面 = 七个问题
 
@@ -564,6 +571,43 @@ python .dsh/scripts/tag_audit.py --unregistered  # 只看未登记的
 **②** 它确实有独立价值 → 按上面的流程加进 `canonical`；**③** 两个都不是 → 删掉它。
 **不要直接手改页面的 tags 字段**，那样下次还会漂。
 
+### Team：论文来源团队（另一份封闭词表）
+
+论文页 frontmatter 里有一个 `team` 字段，记的是**这篇论文来自哪个团队**：
+
+```yaml
+team: ["Nankai University (PCA Lab, VCIP)", "Nanjing University of Posts and Telecommunications"]
+```
+
+它和 tag 一样是**封闭词表**（数据在 `.dsh/team-vocab.json`），但有三处关键差别：
+
+| | Tag | Team |
+|---|---|---|
+| 是什么 | **检索词**（"我想找这类页面"） | **事实**（"这论文是谁做的"） |
+| 门槛 | 需在 ≥3 个页面有检索价值 | **无门槛**——事实就该登记 |
+| 值的形态 | 单个 `分面/叶节点` | **列表**，多单位合作全记 |
+
+**粒度写两级**：机构级 `University of X`（或企业名），实验室/课题组级写成
+`University of X (Key Laboratory of Y)`——上级机构要同时登记为一条机构级条目。
+只署到院系的（`School of` / `College of`）一律折叠成一级机构；邮箱、城市、邮编一律不收录。
+
+**同一个团队只能有一个名字**。`Meta AI` / `FAIR` / `Facebook AI Research` 是三家写法、
+一个团队，必须在 `aliases` 里归并到同一条规范名，否则按团队检索时会漏掉一半。
+拿不准怎么写，先问：
+
+```bash
+python .dsh/scripts/team_vocab.py --list                 # 当前允许哪些团队
+python .dsh/scripts/team_vocab.py --resolve "FAIR"       # 这个写法该写什么
+python .dsh/scripts/team_audit.py                        # 论文页有没有写错（退出码 0 = 干净）
+```
+
+**出厂时团队表也是空的**，第一条团队由第一次 `/ingest` 登记进来——道理与 tag 相同：
+预设一套团队（塞满某些大厂与大庙）既误导别的领域的使用者，也会让你错过自己领域里
+真正该追踪的组。正常用法下你不需要手工维护它。
+
+> 早期版本用 `affiliations` 字段记来源单位，现已废弃并全量并入 `team`；
+> `team_audit.py` 会把残留的 `affiliations` 报出来，`team_apply.py` 会顺手删掉它。
+
 ---
 
 ## 9. 概念分层与概念地图
@@ -628,7 +672,7 @@ python .dsh/scripts/gen_canvas.py --check   # 校验；非 0 = 有缺失或过�
 | 改知识库名字 | `wiki_name` | 重跑 `gen_canvas.py` 刷新画布标题 |
 | 改界面语言 | `language` | 同步改 `AGENTS.md` 顶部的语言设定 |
 | 改目录名（`wiki/` → `知识库/`） | `dirs.*` | 同步改 `wiki_types` 的键，再跑 `setup_wiki.py` |
-| 改根目录文件名 | `files.*` | 跑 `setup_wiki.py` |
+| 改根目录文件名（`index.md` / `TAGS.md` / `TEAMS.md`） | `files.*` | 跑 `setup_wiki.py` |
 | 改五类页面的目录/type 对应 | `wiki_types` | 跑 `setup_wiki.py`，再跑 `check_paper_template.py` 验证 |
 | 改概念地图文件名 | `canvas.*` | 重跑 `gen_canvas.py` |
 | 开启领域速报 | `domains` 填领域列表 | 跑 `setup_wiki.py` 建子目录 |
@@ -666,6 +710,14 @@ python .dsh/scripts/tag_audit.py               # 全库审计
 python .dsh/scripts/tag_audit.py --unregistered # 只看未登记的
 python .dsh/scripts/tag_apply.py [--apply]     # 批量迁移标签（预演 / 写盘）
 python .dsh/scripts/tag_verify_migration.py    # 独立复核迁移结果
+
+# —— Team 词表（论文来源团队）——
+python .dsh/scripts/team_vocab.py --check      # 团队词表自洽
+python .dsh/scripts/team_vocab.py --list       # 列出当前团队（机构 / 实验室分组）
+python .dsh/scripts/team_vocab.py --resolve "<写法>"   # 写法 → 规范名
+python .dsh/scripts/team_vocab.py --emit-doc   # 重新生成 TEAMS.md（改规则时才需要）
+python .dsh/scripts/team_audit.py              # 论文页 team 字段审计（--stats 看排行）
+python .dsh/scripts/team_apply.py [--apply]    # 按映射批量写入 team（预演 / 写盘）
 
 # —— 结构与画布 ——
 python .dsh/scripts/gen_canvas.py [--check]    # 生成 / 校验概念地图

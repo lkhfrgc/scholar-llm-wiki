@@ -17,6 +17,7 @@
 <工作区根>/
 ├── AGENTS.md                  # 本文件：Agent 指令与目录契约
 ├── TAGS.md                    # Tag 规范：只写规则不列词条（生成物，勿手改）
+├── TEAMS.md                   # 团队规范：只写规则不列团队（生成物，勿手改）
 ├── index.md                   # 所有页面的目录（AI 维护）
 ├── log.md                     # 操作日志（AI 维护，append-only）
 ├── 我的研究/                   # 存放你自己的研究内容（AI 不主动改写）
@@ -94,7 +95,7 @@
 
    | 目录 | `type` | `index.md` 段 | 收录内容 | 结构要求 |
    |---|---|---|---|---|
-   | `wiki/papers/` | `paper` | `## Papers` | **论文讲解页面**：一篇论文一个文件——讲清核心贡献、方法拆解、实验与结论、局限 | 走 ingest 论文模板（`### 0. 全局视图` + 模块化方法，每个公式配「符号表 + 人话」）；由 `check_paper_template.py` 校验 |
+   | `wiki/papers/` | `paper` | `## Papers` | **论文讲解页面**：一篇论文一个文件——讲清核心贡献、方法拆解、实验与结论、局限 | 走 ingest 论文模板（`### 0. 全局视图` + 模块化方法，每个公式配「符号表 + 人话」）；frontmatter 必含 `team`（来源团队，见「Team 规范」）；由 `check_paper_template.py` 校验 |
    | `wiki/concepts/` | `concept` | `## Concepts` | 一个概念一页：定义、数学形式、与上下游概念的关系 | 母页/子页分层写法见「概念分层」；index 只列母页 |
    | `wiki/connections/` | `connection` | `## Connections` | **relates-to**：两个（或多个）概念之间尚未被记录的连接、类比、张力 | 命名 `连接-主题.md`；判据是能说清"连接的性质"；不是 is-a / part-of 的关系一律放这里 |
    | `wiki/questions/` | `question` | `## Questions` | 开放研究问题：现状、为何未解、可能的切入路径 | 命名 `q-简短描述.md`；`updated` / `sources` / `## 关联连接` 三件套缺一不可 |
@@ -132,6 +133,7 @@ updated: YYYY-MM-DD
 sources: ["raw/filename.md"]
 questions: [1, 3]  # 该页面关联的核心问题编号
 tags: [domain/llm, task/reasoning, method/transformer]
+team: ["Xxx University"]   # 仅论文页（type: paper）必需；取值见 .dsh/team-vocab.json
 ---
 ```
 
@@ -176,6 +178,41 @@ tags: [domain/llm, task/reasoning, method/transformer]
 
   > 迁移映射 `map` 是**幂等**的：对已是规范 tag 的页面重复执行不会产生变化；
   > 若需重跑历史映射（例如修正了 `map`），先用 `tag_apply.py --rollback <备份>` 还原再 `--apply`。
+
+### Team 规范（论文来源团队）
+
+**唯一权威来源 = `.dsh/team-vocab.json`**（团队数据；查当前团队用 `python .dsh/scripts/team_vocab.py --list`）。
+[`TEAMS.md`](TEAMS.md) 是**规则文档**——只写规范、**不列团队**（同样由脚本生成，请勿手改）。
+
+论文页 frontmatter 的 `team` 字段记录该论文的**来源团队**，取值必须是词表里的规范名：
+
+- **性质**：`team` 是**事实字段**，不是检索词——论文确实来自该团队就登记，
+  **不受 tag「≥3 个页面」门槛约束**；但**同一团队只能有一个规范名**，写法差异一律进 `aliases` 归并。
+- **多单位合作全记**：`team` 是**列表**，一篇论文可以有多条，按署名的上标编号 / 出现顺序排列，
+  **不要只记第一单位**。
+- **两级粒度**：机构级 `University of X`、企业名（`Microsoft Corporation`）；
+  实验室级 `University of X (Key Laboratory of Y)` —— **一级机构在前、实验室/课题组在后**，
+  且上级机构必须同时登记为一条机构级条目（`base` 字段，`--check` 会校验）。
+- **不算团队的署名**：只到院系的 `School of` / `College of` / `Department of` / `Faculty of`
+  （折叠为一级机构）；邮箱、城市、邮编、基金号、`Authorized licensed use limited to:` 水印一律不收录。
+- **写法**：一律单行内联列表 `team: ["A", "B"]`（禁用 YAML 块序列），位置紧跟 `venue` 之后。
+- **无法确认时**：双盲审稿、PDF 缺失且公开渠道查不到 → 写 `team: ["待确认"]`，
+  并在 `log.md` 里说明原因，**不要臆造**。
+- **⚡ 冷启动例外（首次摄入必读）**：词表出厂为空，第一条团队直接登记即可
+  （团队本就是事实字段，没有 tag 那样的页数门槛）；但必须在**同一次 ingest 的收尾**把
+  `teams`（附 `base` / `type` / `note`）与 `aliases`（来源写法）写进 `.dsh/team-vocab.json`，
+  让 `team_audit.py` 的退出码回到 0。是「先立规矩再用」，不是「先用乱再补票」。
+- **改动流程**（缺一不可）：
+  1. 在 `.dsh/team-vocab.json` 的 `teams` 加规范名（`base` / `type` / `note`），
+     在 `aliases` 登记来源写法（含缩写、中英文、`The`/`of` 之类的写法差异）；
+  2. `python .dsh/scripts/team_vocab.py --check` —— 词表自洽；
+  3. （仅当改了**规则**）`python .dsh/scripts/team_vocab.py --emit-doc` —— 重新生成 `TEAMS.md`；
+     单纯增删团队**不用**刷新它，因为 `TEAMS.md` 只写规则、不列团队；
+  4. `python .dsh/scripts/team_apply.py`（预演）→ `--apply`（写盘，自动备份到 `.dsh/tmp/teams-backup-*.json`）；
+  5. `python .dsh/scripts/team_audit.py` —— 复核，退出码必须为 0。
+
+  > 拿不准某种写法该写什么：`python .dsh/scripts/team_vocab.py --resolve "<来源写法>"`
+  > （未登记会明确告知，不会静默返回空）。
 
 ### 链接
 
@@ -324,6 +361,11 @@ tags: [domain/llm, task/reasoning, method/transformer]
 | `python .dsh/scripts/tag_vocab.py --emit-doc` | 重新生成 `TAGS.md` 规则文档（改规则时才需要） | 0 |
 | `python .dsh/scripts/tag_audit.py` | 全库 tag 审计 | 非 0 = 有未登记 tag |
 | `python .dsh/scripts/tag_apply.py [--apply]` | 按 `map` 迁移历史 tag | 0 |
+| `python .dsh/scripts/team_vocab.py --check` | 团队词表自洽性 | 非 0 = 词表有错 |
+| `python .dsh/scripts/team_vocab.py --list` | 列出当前团队词表全部规范名（按类型分组） | 0 |
+| `python .dsh/scripts/team_vocab.py --emit-doc` | 重新生成 `TEAMS.md` 规则文档（改规则时才需要） | 0 |
+| `python .dsh/scripts/team_audit.py` | 论文页 `team` 字段审计（缺字段 / 未登记团队 / 残留 affiliations） | 非 0 = 有违规 |
+| `python .dsh/scripts/team_apply.py [--apply]` | 按映射批量写入 `team`（预演 → 写盘，含备份与 `--rollback`） | 0 |
 | `python .dsh/scripts/gen_canvas.py [--check]` | 生成/校验概念地图画布 | `--check` 非 0 = 过期或缺失 |
 | `python .dsh/scripts/check_paper_template.py` | 论文页模板合规校验 | 非 0 = 有不合规页 |
 | `python .dsh/scripts/extract_pdf.py` | PDF 正文抽取（需 PyMuPDF） | 非 0 = 失败 |

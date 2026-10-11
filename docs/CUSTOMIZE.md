@@ -16,7 +16,8 @@
     "inbox": "raw/research",
     "archive": { "papers": "raw/papers", "book": "raw/book", "...": "..." }
   },
-  "files": { "index": "index.md", "log": "log.md", "tags_doc": "TAGS.md", "vocab": ".dsh/tag-vocab.json" },
+  "files": { "index": "index.md", "log": "log.md", "tags_doc": "TAGS.md", "vocab": ".dsh/tag-vocab.json",
+             "teams_doc": "TEAMS.md", "team_vocab": ".dsh/team-vocab.json" },
   "wiki_types": { "papers": "paper", "concepts": "concept", "...": "..." }
 }
 ```
@@ -118,6 +119,71 @@ python .dsh/scripts/tag_audit.py              # 退出码必须 0
 
 > `tag_apply.py` 只改 `tags:` 那一行，其余字节原样保留（走 `read_bytes`/`write_bytes`），
 > 连 CRLF 行尾都不会被归一化 —— 所以它对 git diff 很友好。
+
+## 2b. 换团队词表（论文来源团队）
+
+```json
+{ "files": { "teams_doc": "TEAMS.md", "team_vocab": ".dsh/team-vocab.json" } }
+```
+
+团队词表在 `.dsh/team-vocab.json`，结构与 tag 词表不同（不是分面，是两级粒度）：
+
+```json
+{
+  "teams": {
+    "Xxx University":                        { "base": "", "type": "机构",   "note": "中文说明" },
+    "Xxx University (Key Laboratory of Y)":  { "base": "Xxx University", "type": "实验室", "note": "课题组" }
+  },
+  "aliases": { "Xxx Univ.": "Xxx University", "FAIR": "Meta AI Research" }
+}
+```
+
+要点：
+
+- **`type` 只有两个值**：`机构` / `实验室`。机构级条目的 `base` 必须是空串；
+  实验室级条目的 `base` 必须指向另一条**已登记**的机构级条目 —— `--check` 会校验这两条；
+- **`aliases` 是纪律所在**：同一团队的不同写法（缩写、中英文、`The` / `of` 的省略）
+  必须指向同一条规范名，**不得在 `teams` 里并存两条**。查一个写法该写什么：
+
+  ```bash
+  python .dsh/scripts/team_vocab.py --resolve "FAIR"
+  ```
+
+- **出厂时 `teams` 与 `aliases` 都是空的**：团队名最贴着自己的研究领域，预设一套
+  （塞满某些大厂与大庙）会误导别的领域的使用者。第一条团队由第一次 `/ingest` 登记进来；
+- **与 tag 不同，团队没有页数门槛** —— 它是**事实字段**：论文确实来自该团队就该登记。
+  唯一的门槛是「同一团队只能一个规范名」。
+
+想手工建、或整份换成另一个领域/单位的团队表：
+
+```bash
+cp .dsh/team-vocab.json .dsh/team-vocab.backup.json     # 1. 备份
+# 2. 只改 teams 与 aliases（保持两个 type 取值不变）
+python .dsh/scripts/team_vocab.py --check               # 3. 必须 0
+python .dsh/scripts/team_vocab.py --list                # 4. 看看结果
+python .dsh/scripts/team_audit.py                       # 5. 复核论文页
+```
+
+> 改团队**不需要**重新生成 `TEAMS.md`——它只写规则、不列团队。
+> 只有改了规则文本（`emit_doc()` 里的措辞）才需要 `--emit-doc`。
+
+### 页面上已经写了一堆旧团队名 / 还在用 affiliations
+
+`team_apply.py` 吃一个映射文件，**不要手工逐页改**：
+
+```json
+{ "CVPR2026-Example": ["Xxx University", "Xxx University (Key Laboratory of Y)"] }
+```
+
+```bash
+python .dsh/scripts/team_apply.py --mapping .dsh/tmp/teams-apply.json           # 预演
+python .dsh/scripts/team_apply.py --mapping .dsh/tmp/teams-apply.json --apply   # 写盘 + 备份
+python .dsh/scripts/team_apply.py --rollback .dsh/tmp/teams-backup-<时间戳>.json
+python .dsh/scripts/team_audit.py                                               # 退出码必须 0
+```
+
+它会把 `team:` 写成单行内联列表（位置紧跟 `venue` 之后），并**顺手删除旧的
+`affiliations` 字段**（早期版本用它记来源单位，现已由 `team` 取代）。
 
 ---
 

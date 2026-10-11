@@ -74,6 +74,7 @@ your-vault/
 ├── AGENTS.md                 ← 从工具包复制
 ├── templates/                ← 从工具包复制（骨架模板，可删）
 ├── TAGS.md                   ← setup_wiki.py 生成
+├── TEAMS.md                  ← setup_wiki.py 生成
 ├── index.md                  ← setup_wiki.py 从模板生成
 ├── log.md                    ← 同上
 ├── wiki/{papers,concepts,connections,questions,syntheses}/
@@ -81,6 +82,7 @@ your-vault/
 └── .dsh/
     ├── wiki.config.json      ← 唯一配置源
     ├── tag-vocab.json        ← tag 受控词表（数据）
+    ├── team-vocab.json       ← 论文团队词表（数据）
     ├── requirements.txt
     ├── skills/{ingest,query,lint}/SKILL.md
     └── scripts/*.py
@@ -94,8 +96,9 @@ your-vault/
 ```bash
 python .dsh/scripts/wiki_env.py --paths     # ① 路径解析对不对
 python .dsh/scripts/selfcheck.py            # ② 环境体检（必需项必须全 ✓）
-python .dsh/scripts/tag_vocab.py --check    # ③ 词表自洽
-python .dsh/scripts/gen_canvas.py --check   # ④ 画布状态
+python .dsh/scripts/tag_vocab.py --check    # ③ tag 词表自洽
+python .dsh/scripts/team_vocab.py --check   # ④ 团队词表自洽
+python .dsh/scripts/gen_canvas.py --check   # ⑤ 画布状态
 ```
 
 按上面的顺序（先 `setup_wiki.py`）跑完，**四个命令都应该退出码 0**。
@@ -135,9 +138,11 @@ python -m venv .dsh/venv
 | `extract_pdf.py` 报缺 PyMuPDF | 按第 4 节建 venv；脚本会打印精确命令 |
 | Windows 控制台中文乱码 | 脚本内部已把 stdout 切到 UTF-8；若仍有问题，`chcp 65001` |
 | `tag_audit.py` 报一堆未登记 tag | 那是**有效信号**：说明页面用了词表外的词。按 [`TAGS.md`](../TAGS.md) 的「新增 tag 流程」处理，或把近义词登记进 `map` |
+| `team_audit.py` 报「未登记团队」 | 同样是**有效信号**：页面上的团队名还没进词表。按 [`TEAMS.md`](../TEAMS.md) 登记 `teams` / `aliases` 即可（团队无页数门槛） |
+| `TEAMS.md` / `TAGS.md` 不存在 | `setup_wiki.py` 只在缺失时生成；补跑一次 `python .dsh/scripts/setup_wiki.py`，或直接 `team_vocab.py --emit-doc` / `tag_vocab.py --emit-doc` |
 | `gen_canvas.py --check` 报 STALE | 族结构变了但画布没重生成。跑一次不带 `--check` 的命令即可 |
 
 ## 6. 卸载
 
-删掉 `.dsh/`、`AGENTS.md`、`templates/`、`TAGS.md` 即可。
+删掉 `.dsh/`、`AGENTS.md`、`templates/`、`TAGS.md`、`TEAMS.md` 即可。
 `wiki/`、`raw/`、`index.md`、`log.md` 都是你自己的内容，与本工具包无关。

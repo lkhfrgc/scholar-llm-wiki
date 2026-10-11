@@ -44,6 +44,7 @@ raw/research/ 的源文件
    ├─→ wiki/questions/q-*.md                   新研究问题（如有）
    │
    ├─→ 步骤 6b：从 .dsh/tag-vocab.json 挑 tag（封闭词表，禁止造词）
+   ├─→ 步骤 6c：从首页署名定 team（.dsh/team-vocab.json，多单位全记；新团队先登记）
    ├─→ 步骤 7：更新 index.md（五段，新条目插顶部）+ log.md（顶部追加）
    ├─→ 步骤 8：把源文件从 raw/research/ 移到 raw/<类别>/
    └─→ 步骤 9：族结构若变化 → gen_canvas.py 重生成画布
@@ -64,7 +65,7 @@ raw/research/ 的源文件
 
 | 脚本 | 职责 | 退出码 |
 |---|---|---|
-| `setup_wiki.py` | 建目录骨架（目录名从 `wiki_types` 的键来）+ 生成 `index.md`/`log.md`/`TAGS.md`；**幂等，绝不覆盖** | 非 0 = 有步骤失败 |
+| `setup_wiki.py` | 建目录骨架（目录名从 `wiki_types` 的键来）+ 生成 `index.md`/`log.md`/`TAGS.md`/`TEAMS.md`；**幂等，绝不覆盖** | 非 0 = 有步骤失败 |
 | `selfcheck.py` | 体检：工作区/配置/骨架/解释器/可选依赖/子脚本自检；`--pdf` 追加 PDF 流水线回归 | 非 0 = 必需项失败 |
 
 ### tag 子系统
@@ -91,6 +92,32 @@ tag_verify_migration.py      ← 独立复核：备份 → 重新推导 → 与�
   代价是"看词表"要多跑一条 `--list`，换来的是文档永不失效；
 - **改写只动 `tags:` 一行** —— 走 `read_bytes`/`write_bytes`，连行尾符都不归一化，git diff 干净；
 - **映射是幂等的** —— 对已是规范 tag 的页面重复执行不产生变化。
+
+### team 子系统
+
+与 tag 子系统同构，但服务的是**事实字段**（论文来源团队）而不是检索词：
+
+```
+.dsh/team-vocab.json         ← 团队数据（teams: 规范名 → {base, type, note} / aliases: 来源写法 → 规范名）
+        │
+team_vocab.py                ← 引擎：加载数据 → TEAMS / ALIASES / resolve / check / emit_doc / eval_list
+        ├─ --list             ←  列出当前团队（按机构级 / 实验室级分组，附上级机构）
+        ├─ --check            ←  自洽性：实验室必须有已登记的 base、机构级 base 必须为空、别名不指向空、无归一化重名
+        ├─ --emit-doc         ←  生成 TEAMS.md 规则文档（只写规则，不列团队）
+        ├─ --resolve <写法>    ←  写法 → 规范名（未登记明确报错，不静默返回空）
+        ↓
+team_apply.py                ← 按映射文件批量写入 frontmatter 的 team 行（预演 / --apply / --rollback）
+team_audit.py                ← 全库审计：缺 team、未登记团队、残留 affiliations、归一化重名、结构问题
+```
+
+与 tag 子系统的三处关键差异：
+
+- **没有页数门槛** —— tag 要求「≥3 个页面有检索价值」，团队是**事实**：论文确实来自该团队就该登记，
+  只有「同一团队只能一个规范名」这一条纪律（靠 `aliases` 归并）；
+- **值是列表** —— `team: ["A", "B"]`，多单位合作全记；解析必须按 JSON（团队名本身常含逗号，
+  如 `Institute of Astronomy, Chinese Academy of Sciences`），**不能按逗号切分**；
+- **两级粒度** —— 机构级与实验室级共存，实验室条目用 `base` 指向其上级机构，
+  这样既能按实验室精确检索，也能按机构聚合。
 
 ### 概念分层与画布
 
@@ -137,9 +164,9 @@ Obsidian 显示「未找到引用的文件」。
 
 | 技能 | 流水线 |
 |---|---|
-| `ingest` | 9 步：读源 → 提炼 → 论文页 → 概念页 → 消歧链接 → 连接页 → 问题标注 → tag → 注册表 → 归档 → Canvas |
+| `ingest` | 9 步：读源 → 提炼 → 论文页（含 team）→ 概念页 → 消歧链接 → 连接页 → 问题标注 → tag → 注册表 → 归档 → Canvas |
 | `query` | 5 步：读 `index.md` 定位 → 深读 2–5 页 → 带双链综合 → 新洞见固化 → 记日志 |
-| `lint` | 9 项检查（索引一致性 / 死链孤儿 / 缺失概念 / 过时论断 / 问题覆盖 / 空白领域 / 分层一致性 / Canvas 同步 / Tag 合规），**默认只读** |
+| `lint` | 10 项检查（索引一致性 / 死链孤儿 / 缺失概念 / 过时论断 / 问题覆盖 / 空白领域 / 分层一致性 / Canvas 同步 / Tag 合规 / Team 合规），**默认只读** |
 
 三个技能共享同一份 `AGENTS.md` 契约，所以产出物结构长期稳定 —— 这是
 「AI 维护的知识库」和「一堆 AI 生成的散页」的区别所在。
@@ -152,7 +179,8 @@ Obsidian 显示「未找到引用的文件」。
 {
   "vault_prefix": "auto",
   "dirs":     { "wiki": "wiki", "raw": "raw", "inbox": "raw/research", "archive": {…} },
-  "files":    { "index": "index.md", "log": "log.md", "tags_doc": "TAGS.md", "vocab": ".dsh/tag-vocab.json" },
+  "files":    { "index": "index.md", "log": "log.md", "tags_doc": "TAGS.md", "vocab": ".dsh/tag-vocab.json",
+                "teams_doc": "TEAMS.md", "team_vocab": ".dsh/team-vocab.json" },
   "wiki_types": { "papers": "paper", "concepts": "concept", … },
   "canvas":   { "overview": "wiki/概念全景图.canvas", "family_prefix": "wiki/概念地图-" },
   "python":   { "venv": ".dsh/venv", "requirements": ".dsh/requirements.txt" }
@@ -167,7 +195,8 @@ Obsidian 显示「未找到引用的文件」。
 | 想加什么 | 加在哪 |
 |---|---|
 | 新技能 | `.dsh/skills/<name>/SKILL.md` + `AGENTS.md` 的调度表 |
-| 新的审计维度 | 仿 `tag_audit.py`：只读、`--json`、退出码说话 |
+| 新的审计维度 | 仿 `tag_audit.py` / `team_audit.py`：只读、`--json`、退出码说话 |
 | 新的目录分区 | `wiki.config.json` 的 `dirs` + `wiki_types` |
 | 新领域词表 | `tag-vocab.json` 的 `canonical` + `map`，然后 `--check` |
-| CI 校验 | 直接串：`tag_vocab.py --check && tag_audit.py && gen_canvas.py --check && check_paper_template.py` |
+| 新领域团队表 | `team-vocab.json` 的 `teams` + `aliases`，然后 `--check` |
+| CI 校验 | 直接串：`tag_vocab.py --check && team_vocab.py --check && tag_audit.py && team_audit.py && gen_canvas.py --check && check_paper_template.py` |

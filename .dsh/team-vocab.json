@@ -1,0 +1,13 @@
+{
+  "$comment": "Scholar LLM Wiki 的论文团队受控词表数据（词表与引擎分离）。规范名 → {base, type, note}；改完运行 `python .dsh/scripts/team_vocab.py --check` 校验。",
+  "version": 1,
+
+  "$comment_出厂状态": "⚠️ 出厂时 teams 与 aliases 都是空的 —— 只给「机构 / 实验室两级粒度 + 多单位合作全记」这个骨架，不给任何具体团队。团队名随你摄入的论文长出来，理由见 TEAMS.md「二、冷启动」。",
+  "$comment_怎么开始": "① 直接跑 /ingest，agent 会在写论文页之前把首页署名里的团队登记进来；② 或手工往 teams 里写：\"规范名\": {\"base\": \"\", \"type\": \"机构\", \"note\": \"中文说明\"}；③ 随时用 `python .dsh/scripts/team_vocab.py --list` 查看当前词表。",
+
+  "$comment_teams": "规范名全集。两种粒度：机构级 base 留空字符串（其自身即一级机构）；实验室/课题组级 base 写上级机构的规范名，且该上级机构必须同时登记为一条机构级条目（--check 会校验）。type 只允许「机构」或「实验室」两个值。",
+  "teams": {},
+
+  "$comment_aliases": "来源写法 → 规范名。论文里出现的别名、缩写、中英文写法差异都登记在这里，由 team_audit.py 用于报错提示与 team_apply.py 用于归并。每一个 key 都必须指向 teams 里已登记的规范名。",
+  "aliases": {}
+}

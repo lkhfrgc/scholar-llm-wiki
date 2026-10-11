@@ -110,11 +110,13 @@ python .dsh/scripts/selfcheck.py
 你的知识库/
 ├── AGENTS.md          # AI 的架构规范（每次对话自动生效）
 ├── TAGS.md            # Tag 规范：只写规则不列词条（脚本生成，勿手改）
+├── TEAMS.md           # 团队规范：只写规则不列团队（脚本生成，勿手改）
 ├── index.md           # 总目录
 ├── log.md             # 操作日志（append-only）
 ├── .dsh/
 │   ├── wiki.config.json    # 唯一配置源
-│   ├── tag-vocab.json      # 词表数据
+│   ├── tag-vocab.json      # tag 词表数据
+│   ├── team-vocab.json     # 论文团队词表数据
 │   ├── skills/{ingest,query,lint}/SKILL.md
 │   └── scripts/*.py
 ├── raw/research/      # ← 把待摄入的资料丢这里
@@ -138,7 +140,7 @@ python .dsh/scripts/selfcheck.py
 |---|---|---|
 | **ingest** | `/ingest`、`/ingest <路径>`、「摄入」「导入」 | 读源文件 → 建论文讲解页（含公式符号表 +「人话」解读）→ 抽概念页 → 找跨概念连接 → 标注研究问题 → 选 tag → 更新 `index.md` / `log.md` → 归档源文件 → 重生成 Canvas。**全程禁止修改 `raw/`** |
 | **query** | `/query <问题>`、「wiki 里有没有…」 | 先读 `index.md` 定位 → 深读相关页面 → 带 `[[双链]]` 引用综合回答；**禁止凭模型记忆回答**；发现新洞见主动提议固化为 synthesis / connection / question 页面 |
-| **lint** | `/lint`、`/scan` | 九项检查：索引一致性、死链与孤儿页、缺失概念、过时论断、问题覆盖、空白领域、概念分层一致性、Canvas 同步、Tag 词表合规。**默认只读**，修复需确认 |
+| **lint** | `/lint`、`/scan` | 十项检查：索引一致性、死链与孤儿页、缺失概念、过时论断、问题覆盖、空白领域、概念分层一致性、Canvas 同步、Tag 词表合规、Team 词表合规。**默认只读**，修复需确认 |
 
 三个技能都建立在同一份 `AGENTS.md` 契约上，因此输出结构长期稳定。
 
@@ -159,6 +161,12 @@ python .dsh/scripts/tag_audit.py               # 全库 tag 审计（非 0 = 有
 python .dsh/scripts/tag_apply.py [--apply]     # 按 map 批量迁移历史 tag
 python .dsh/scripts/tag_apply.py --rollback <备份.json>          # 精确回滚
 python .dsh/scripts/tag_verify_migration.py    # 独立复核迁移结果
+
+python .dsh/scripts/team_vocab.py --check      # 团队词表自洽性
+python .dsh/scripts/team_vocab.py --list       # 列出当前团队词表（按机构/实验室分组）
+python .dsh/scripts/team_vocab.py --emit-doc   # 重新生成 TEAMS.md（改规则时才需要）
+python .dsh/scripts/team_audit.py              # 论文页 team 字段审计（非 0 = 有缺字段/未登记团队）
+python .dsh/scripts/team_apply.py [--apply]    # 按映射批量写入 team（预演 → 写盘，含备份/回滚）
 
 python .dsh/scripts/gen_canvas.py [--check]    # 生成 / 校验概念地图画布
 python .dsh/scripts/check_paper_template.py    # 论文页模板合规校验（--links 顺带查死链）
@@ -184,7 +192,7 @@ python .dsh/scripts/crop_equations.py --manifest m.json --equations e.json --out
 |---|---|
 | 知识库名字、语言 | `wiki_name`、`language` |
 | 目录名（`wiki/`、`raw/`、收件箱、归档区） | `dirs.*` |
-| 根目录文件名（`index.md` / `log.md` / `TAGS.md`） | `files.*` |
+| 根目录文件名（`index.md` / `log.md` / `TAGS.md` / `TEAMS.md`） | `files.*` |
 | 五类页面的目录与 `type` 对应关系 | `wiki_types` |
 | 概念地图文件名 | `canvas.*` |
 | 周报的领域分区 | `domains` |
@@ -197,6 +205,14 @@ python .dsh/scripts/crop_equations.py --manifest m.json --equations e.json --out
 词表随你的第一次 `/ingest` 长出来——**冷启动阶段新增 tag 免于「≥3 个页面」门槛**，但必须在同一次摄入收尾前登记进 `canonical`（`叶节点: 中文释义`）与 `map`（来源词），让 `tag_audit.py` 回到退出码 0；某个分面一旦有条目就恢复常规门槛。
 
 查看当前词表：`python .dsh/scripts/tag_vocab.py --list`。改完按「`--check` → `tag_apply.py` → `tag_audit.py`」三步走——`TAGS.md` 只写规则不列词条，**加词条不需要刷新它**。
+
+**团队词表：`.dsh/team-vocab.json`** —— 同样是**数据**，不是代码；记录论文页 `team` 字段（**来源团队**）允许出现的规范名。
+
+**出厂时它也是空的**：只给「机构 / 实验室两级粒度 + 多单位合作全记」这个骨架。理由与 tag 相同：团队名最贴着自己的研究领域，预设一套（塞满某些大厂与大庙）既误导别的领域的使用者，也会让人错过自己领域里真正该追踪的组。
+
+与 tag 的区别在于**门槛**：团队是**事实字段**——论文确实来自该团队就登记，**没有「≥3 个页面」的门槛**；但**同一个团队只能有一个规范名**，`Meta AI` / `FAIR` / `Facebook AI Research` 这类写法必须在 `aliases` 里归并到同一条。粒度写两级：机构级 `University of X`，实验室级 `University of X (Key Laboratory of Y)`（上级机构要同时登记为一条机构级条目，`--check` 会校验）。
+
+查看当前团队：`python .dsh/scripts/team_vocab.py --list`；拿不准某种写法先查 `--resolve "<来源写法>"`。改完按「`--check` → `team_apply.py` → `team_audit.py`」三步走——`TEAMS.md` 只写规则不列团队，**加团队不需要刷新它**。
 
 **库根自动探测**：如果你把知识库放在一个更大的 Obsidian 库里（比如 `my-vault/notes/`），`vault_prefix` 保持 `"auto"` 即可 —— 脚本会向上找 `.obsidian/` 并自动算出 `notes/` 这个前缀，写进 `.canvas` 的路径永远是对的。也可以显式写死。
 

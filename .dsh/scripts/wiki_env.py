@@ -84,6 +84,8 @@ DEFAULTS: dict = {
         "log": "log.md",
         "tags_doc": "TAGS.md",
         "vocab": ".dsh/tag-vocab.json",
+        "teams_doc": "TEAMS.md",
+        "team_vocab": ".dsh/team-vocab.json",
     },
     # wiki 子目录 → frontmatter 的 type 值（lint 检查 1 / ingest 步骤 3 依赖）
     "wiki_types": {
@@ -307,6 +309,8 @@ def describe() -> dict:
             "log": str(WS / cfg("files", "log", default="log.md")),
             "tags_doc": str(WS / cfg("files", "tags_doc", default="TAGS.md")),
             "vocab": str(WS / cfg("files", "vocab", default=".dsh/tag-vocab.json")),
+            "teams_doc": str(WS / cfg("files", "teams_doc", default="TEAMS.md")),
+            "team_vocab": str(WS / cfg("files", "team_vocab", default=".dsh/team-vocab.json")),
         },
         "wiki_types": cfg("wiki_types", default={}),
         "canvas": cfg("canvas", default={}),

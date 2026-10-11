@@ -19,6 +19,7 @@
   6. 有「**人话**」讲解，处数 >= 公式块数
   7. 『模块名称解释』出现次数 >= 1
   8. 有 `## 关联连接` 与 `## 原始来源`
+  9. frontmatter 含非空 `team`（来源团队，受控词表见 TEAMS.md；取值合规由 team_audit.py 负责）
 
 退出码：0 = 全部合规；1 = 有不符（页面不合规，或 `--links` 发现死链）；2 = 用法错误。
 """
@@ -60,6 +61,7 @@ METRIC_KEYS = {
     "公式数": "formula_blocks",
     "关联连接": "related_links",
     "原始来源": "sources",
+    "来源团队": "team",
 }
 
 # --------------------------------------------------------------------------
@@ -144,6 +146,7 @@ def check(path):
         "公式数": n_formula,
         "关联连接": bool(re.search(r"(?m)^##\s*关联连接", t)),
         "原始来源": bool(re.search(r"(?m)^##\s*原始来源", t)),
+        "来源团队": bool(re.search(r'(?m)^team:\s*\[.+\]', t)),
     }
     bad = []
     if not r["批注"]:
@@ -167,6 +170,8 @@ def check(path):
         bad.append("缺关联连接")
     if not r["原始来源"]:
         bad.append("缺原始来源")
+    if not r["来源团队"]:
+        bad.append("缺来源团队")
     return r, bad
 
 

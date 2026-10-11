@@ -21,7 +21,8 @@
    `.dsh/wiki.config.json` 并在 `wiki_env.DEFAULTS` 里给默认值，不要写成常量。
 
 3. **词表是数据**：tag 相关改动只改 `.dsh/tag-vocab.json`，
-   引擎 `tag_vocab.py` 不应出现具体词条。
+   引擎 `tag_vocab.py` 不应出现具体词条。团队（`team` 字段）同理：
+   数据在 `.dsh/team-vocab.json`，引擎 `team_vocab.py` 不应出现具体团队名。
 
 4. **只读审计 + 退出码说话**：校验类脚本不改文件、`0 = 通过`、支持 `--json`。
    要写盘的脚本必须支持预演（默认不写），并且**幂等**。
@@ -35,6 +36,7 @@
 ```bash
 python .dsh/scripts/repo_lint.py               # 泄露与格式
 python .dsh/scripts/tag_vocab.py --check       # 词表自洽
+python .dsh/scripts/team_vocab.py --check      # 团队词表自洽
 python .dsh/scripts/selfcheck.py               # 环境与骨架
 python .dsh/scripts/gen_canvas.py --check      # 画布同步
 ```
@@ -47,6 +49,7 @@ python .dsh/scripts/gen_canvas.py --check      # 画布同步
 | `.dsh/skills/<name>/SKILL.md` | 技能：frontmatter 的 `description` 决定它何时被选中 |
 | `.dsh/wiki.config.json` | 唯一配置源 |
 | `.dsh/tag-vocab.json` | tag 词表数据 |
+| `.dsh/team-vocab.json` | 论文团队词表数据（`team` 字段） |
 | `docs/` | 面向使用者的文档 |
 | `templates/` | `setup_wiki.py` 用来生成骨架的模板 |
 
@@ -83,6 +86,7 @@ CI 也会在 Linux 上跑一遍「泄露扫描 → 词表自洽 → 模拟安装
 ```bash
 python .dsh/scripts/repo_lint.py
 python .dsh/scripts/tag_vocab.py --check
+python .dsh/scripts/team_vocab.py --check
 ```
 
 `.dsh/tmp/`、`.dsh/venv/`、`__pycache__/` 已被忽略，不会进版本库。

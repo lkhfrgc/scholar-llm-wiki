@@ -205,6 +205,44 @@ def build_vocab(rep: Report, force: bool = False) -> None:
         rep.created.append(cfg("files", "tags_doc", default="TAGS.md"))
 
 
+def build_team_vocab(rep: Report, force: bool = False) -> None:
+    """确保 .dsh/team-vocab.json 存在，并在 TEAMS.md 缺失时生成它。
+
+    与 `build_vocab`（tag）同构：词表数据与规则文档分离，
+    已存在的 `TEAMS.md` 一律保留，主动刷新用 `team_vocab.py --emit-doc`（或本脚本 `--force`）。
+    """
+    vocab = WS / cfg("files", "team_vocab", default=".dsh/team-vocab.json")
+    if not vocab.exists():
+        shipped = Path(__file__).resolve().parents[1] / "team-vocab.json"
+        if shipped.is_file():
+            rep.copy(shipped, vocab)
+        else:
+            rep.fail(f"团队词表缺失且找不到模板：{vocab}")
+            return
+
+    teams_doc_rel = cfg("files", "teams_doc", default="TEAMS.md")
+    teams_doc = WS / teams_doc_rel
+    if teams_doc.exists() and not force:
+        rep.skipped.append(teams_doc_rel)
+        return
+
+    engine = script_path("team_vocab.py")
+    if not engine.is_file():
+        rep.fail("找不到 .dsh/scripts/team_vocab.py，跳过 TEAMS.md 生成")
+        return
+    if rep.dry_run:
+        rep.created.append(teams_doc_rel)
+        return
+    proc = subprocess.run(
+        [sys.executable, str(engine), "--emit-doc"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+    )
+    if proc.returncode != 0:
+        rep.fail("team_vocab.py --emit-doc 失败：\n" + (proc.stdout or "") + (proc.stderr or ""))
+    else:
+        rep.created.append(teams_doc_rel)
+
+
 def build_canvas(rep: Report, force: bool = False) -> None:
     """首次安装时生成总图画布，让 `gen_canvas.py --check` 一装完就是绿的。
 
@@ -285,6 +323,7 @@ def main(argv: list[str] | None = None) -> int:
     build_skeleton(rep)
     build_root_files(rep, tpl, force=args.force)
     build_vocab(rep, force=args.force)
+    build_team_vocab(rep, force=args.force)
     build_canvas(rep, force=args.force)
     if args.venv:
         build_venv(rep)
@@ -320,7 +359,7 @@ def main(argv: list[str] | None = None) -> int:
             print("\n下一步：")
             print("  1. python .dsh/scripts/selfcheck.py          # 体检：环境、依赖、骨架")
             print("  2. 把待摄入资料放进收件箱，然后让 agent 执行 /ingest")
-            print("  3. 目录名 / 领域 / tag 词表都在 .dsh/wiki.config.json 与 .dsh/tag-vocab.json 里改")
+            print("  3. 目录名 / 领域在 .dsh/wiki.config.json 里改；tag 与团队词表分别在 .dsh/tag-vocab.json 与 .dsh/team-vocab.json 里改")
 
     return 1 if rep.failed else 0
 

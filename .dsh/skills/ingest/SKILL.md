@@ -149,6 +149,29 @@ wiki/
 
 在 `wiki/papers/` 创建 Markdown 文件，**按照论文讲解模板，详细思考与讲解文献内容：**
 
+**先定 `team`（来源团队）**——写页面之前必须完成这一步：
+
+1. 从 PDF **首页**读署名机构：AAAI / CVPR 等格式在作者名下方带编号
+   （`1Xxx University, 2Key Laboratory of …`）；IEEE 期刊 / 会议格式在**首页脚注**
+   （`A. Author is with the School of …, Xxx University`）。抽第一页存盘再读：
+
+   ```bash
+   python .dsh/scripts/extract_pdf.py "<pdf>" --pages 1 -o .dsh/tmp/_ingest_p1.txt
+   ```
+
+2. 每个机构对照团队词表取**规范名**；有实验室/课题组就写成 `机构 (实验室)`（**机构在前、实验室在后**）。
+3. **多单位合作全部收录**，按论文署名的上标编号顺序排列，不要只记第一单位。
+4. 只到院系（`School of` / `College of` / `Department of` / `Faculty of`）的署名折叠为一级机构；
+   邮箱、城市、邮编、基金号、`Authorized licensed use limited to:` 水印一律不收录。
+5. 拿不准来源写法时先查（未登记会明确告知）：
+   `python .dsh/scripts/team_vocab.py --resolve "<来源写法>"`
+6. **未登记的新团队**：在 `.dsh/team-vocab.json` 的 `teams` 登记规范名（附 `base` / `type` / `note`）、
+   在 `aliases` 登记来源写法，跑 `team_vocab.py --check` 后再写页面。**禁止直接写未登记的名字**
+   （冷启动阶段的空词表同样适用，见 TEAMS.md「二、冷启动」）。
+7. 确实无法确认（双盲审稿、PDF 缺失且公开渠道查不到）→ 写 `team: ["待确认"]`，
+   并在 `log.md` 说明原因，**不要臆造**。
+8. 本次摄入收尾：`python .dsh/scripts/team_audit.py`（退出码必须为 0）。
+
 ```markdown
 ---
 title: "论文标题"
@@ -156,6 +179,7 @@ type: paper
 authors: [作者1, 作者2]
 year: YYYY
 venue: NeurIPS/ICML/ICLR/arXiv/期刊名等
+team: ["来源团队1", "来源团队2"]   # ⚠️ 只能取 .dsh/team-vocab.json 的规范名；多单位全记，按署名顺序
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 sources: ["raw/子目录/文件名"]
